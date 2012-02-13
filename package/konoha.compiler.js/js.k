@@ -37,6 +37,7 @@ if ($env.JS_USE_WORKER == "true") {
 //    String[] topLevelFunctionList;
 //    String[] protoFunc;
 //    String[] errors;
+//    String[] useFuncList;
 //    String   obfuscatedClassName;
 //    Map<String, String> varNameMap;
 //    Map<String, String> methodNameMap;
@@ -47,6 +48,7 @@ System.addClassField(CompilerOpt, String[], "source");
 System.addClassField(CompilerOpt, String[], "unexpectedMethods");
 System.addClassField(CompilerOpt, String[], "topLevelFunctionList");
 System.addClassField(CompilerOpt, String[], "protoFunc");
+System.addClassField(CompilerOpt, String[], "useFuncList");
 System.addClassField(CompilerOpt, Map<String, String>, "varNameMap");
 System.addClassField(CompilerOpt, Map<String, String>, "methodNameMap");
 System.addClassField(CompilerOpt, Map<String, String>, "classNameMap");
@@ -60,6 +62,11 @@ System.addClassField(CompilerOpt, Map<String, String>, "classNameMap");
     this.varNameMap = {};
     this.methodNameMap = {};
     this.classNameMap = {};
+
+    this.useFuncList = ((to String)$env.JS_USE_FUNC_LIST).split(",");
+    foreach(String str in this.useFuncList) {
+        str = str.trim();
+    }
 }
 class JSConfig {
     boolean use_obfuscate;
@@ -160,13 +167,14 @@ JSConfig config = new JSConfig();
     }
     opt.classNameMap[s] = obfuscateString(i, classIdx, 'A', false);
 }
-@Public String Compiler.getUserClassName(String s) {
+@Public String Compiler.getUserClassName(String s, boolean getOnly) {
     if (opt.classNameMap[s] == null) {
         setUserClassName(s);
     }
     return opt.classNameMap[s];
 }
-@Public String Compiler.class2str(String s) {
+@Public String Compiler.class2str(Class c) {
+    String s = (to String)c;
     if (s.endsWith("Script")) {
         return "Script";
     }
@@ -183,6 +191,10 @@ JSConfig config = new JSConfig();
         return "konoha.Func";
     }
     String[] ary = s.split(".");
+    /* TODO class obfuscation */
+    //if (c.isPublic() && !isKonohaClass(c)) {
+    //    return ary[|ary|-1];
+    //}
     if (|ary| >= 2 && isKonohaClass(s)) {
         String res = "";
         for (int i = 0; i < |ary|; i++) {
@@ -197,8 +209,8 @@ JSConfig config = new JSConfig();
     }
 }
 
-@Public String Compiler.mtdclass2str(String s) {
-    return class2str(s[0 to s.lastIndexOf(".")-1]);
+@Public String Compiler.mtdclass2str(Method m) {
+    return class2str(m.getMethodClass());
 }
 String getTypeName (Class type) {
     String res = (to String) type;
@@ -232,9 +244,10 @@ LABEL = "label";
     opt.methodNameMap.set(mtd.toString(), obfuscateString(i, mtdId, 'a', false));
 }
 @Public boolean Compiler.isDecl(Method mtd) {
-    return !(mtd.toString() in? this.opt.methodNameMap);
+    return (mtd.toString() in? this.opt.methodNameMap.keys());
 }
 @Public String Compiler.getMethodName(Method mtd) {
+    String s = mtd.toString();
     if (isKonohaClass(mtd.getMethodClass()) && mtd.getMethodClass() != Script) {
         return mtd.getName();
     }
@@ -247,7 +260,6 @@ LABEL = "label";
         }
         return "_" + obfuscateString(i, |this.opt.topLevelFunctionList|, 'a', false);
     }
-    String s = mtd.toString();
     if (!s in? opt.methodNameMap) {
         setMethodName(mtd);
     }
@@ -281,7 +293,7 @@ LABEL = "label";
 @Public void K_Function.codegen(Compiler asm) {
     boolean flagPrototype = false;
     asm.opt.obfuscatedMethodName = asm.getMethodName(asm.mtd);
-    asm.opt.obfuscatedClassName = asm.class2str((to String)asm.mtd.getMethodClass());
+    asm.opt.obfuscatedClassName = asm.class2str(asm.mtd.getMethodClass());
     String fncdef = "";
     String thisclass = asm.opt.obfuscatedClassName;
     if (isKonohaClass(asm.mtd.getMethodClass())) {
@@ -518,13 +530,13 @@ LABEL = "label";
     if (op.mtd.getReturnType() != Void) {
         res = declVar(asm) + getVarName(asm) + " = ";
     }
-    String thisclass = asm.mtdclass2str(op.mtd.toString());
+    String thisclass = asm.mtdclass2str(op.mtd);
     if (flag) {
         res += args[0].getVarName(asm) + ".";
     } else if (thisclass != "Script") {
         res += uscore(thisclass) + ".";
     }
-    if (!asm.isDecl(op.mtd)) {
+    if (!asm.isDecl(op.mtd) && !isKonohaClass(op.mtd.getMethodClass())) {
         asm.opt.protoFunc.add(asm.getMethodName(op.mtd));
     }
     if (asm.getMethodName(op.mtd) == "new") {
@@ -581,7 +593,7 @@ LABEL = "label";
     }
 }
 @Public @Override void K_NEW.codegen(Compiler asm) {
-    String name = asm.class2str((to String)type);
+    String name = asm.class2str(type);
     asm.addSource(declVar(asm) + getVarName(asm) + " = new " + uscore(name) + "();");
 }
 @Public @Override void K_GETIDX.codegen(Compiler asm) {
@@ -596,7 +608,7 @@ LABEL = "label";
     } else if (op.const_table[op.table_idx].class == Class) {
         asm.addSource(declVar(asm) + getVarName(asm) + " = new " + uscore("konoha.String") + "(" + quote(op.const_table[op.table_idx]) + ");");
     } else {
-        asm.addSource(declVar(asm) + getVarName(asm) + " = new " + asm.class2str((to String)op.const_table[op.table_idx].class) + "(" + quote(op.const_table[op.table_idx]) + ");");
+        asm.addSource(declVar(asm) + getVarName(asm) + " = new " + asm.class2str(op.const_table[op.table_idx].class) + "(" + quote(op.const_table[op.table_idx]) + ");");
     }
 }
 @Public @Override void K_GetField.codegen (Compiler asm) {
@@ -677,10 +689,30 @@ LABEL = "label";
     }
     return res;
 }
+@Public String Compiler.createSymbol() {
+    String indent = "    ";
+    String res = "";
+    foreach (String symbol in this.opt.useFuncList) {
+        String m = "";
+        String c = "";
+        foreach (String n in this.opt.methodNameMap.keys()) {
+            if (n.endsWith(symbol)) {
+                m = this.opt.methodNameMap[n];
+                if (symbol.indexOf(".") != -1) {
+                    c = getUserClassName(symbol.split(".")[0]);
+                }
+                res += "function " + symbol + "() {" + EOL;
+                res += indent + "return " + c + ((c == "") ? "" : ".") + m + "();" + EOL;
+                res += "}" + EOL;
+            }
+        }
+    }
+    return res;
+}
 @Public String Compiler.createClassDefinition(Class c, String cname) {
     String res = "";
     if (c.getSuper() != Object) {
-        String supcname = class2str((to String)c.getSuper());
+        String supcname = class2str(c.getSuper());
         res += uscore(cname) + ".prototype = new " + uscore(supcname) + "()" + EOL;
     }
     res += "function " + uscore(cname) + "() {" + EOL;
@@ -709,16 +741,17 @@ LABEL = "label";
         ous << header << EOL + EOL;
     }
     foreach (String fname in this.opt.protoFunc) {
-        ous << "function " + fname + "(){};" << EOL;
+        ous << "function " + fname + "(){}" << EOL;
     }
     foreach (K_Class kc in this.declareclass) {
-        String cname = class2str((to String)kc.c);
+        String cname = class2str(kc.c);
         ous << createClassDefinition(kc.c, cname) << EOL;
     }
     foreach (str in this.opt.source) {
         ous << str << EOL;
     }
     ous << createMain() << EOL;
+    ous << createSymbol() << EOL;
     if ((config.gen_html) == true) {
         ous << footer;
     }
