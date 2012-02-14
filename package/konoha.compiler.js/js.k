@@ -662,8 +662,18 @@ LABEL = "label";
     res += "}" + EOL;
     res += EOL;
     if ($env.JS_USE_WORKER == "true") {
+        //res += "var timer;" + EOL + EOL;
         res += "onmessage = function " + TOP + " {" + EOL;
         res += indent + "var json = JSON.parse(event.data);" + EOL;
+        //res += indent + "if (json.type == 'config' && json.async == true) {" + EOL;
+        //res += indent + indent + "timer = setInterval(function() {" + EOL;
+        //res += indent + indent + indent + "postMessage(JSON.stringify({" + EOL;
+        //res += indent + indent + indent + indent + "'event': 'progress'," + EOL;
+        //res += indent + indent + indent + indent + "'document': document" + EOL;
+        //res += indent + indent + indent + "}));" + EOL;
+        //res += indent + indent + "}, json.interval);" + EOL;
+        //res += indent + "} else if (json.type == 'start') {" + EOL;
+        res += indent + "if (json.type == 'start') {" + EOL;
     } else {
         res += "function " + TOP + " {" + EOL;
     }
@@ -678,11 +688,14 @@ LABEL = "label";
         res += ");" + EOL;
     }
     if ($env.JS_USE_WORKER == "true") {
+        //res += indent + "clearInterval(timer);" + EOL;
         res += indent + "postMessage(JSON.stringify({" + EOL;
+        res += indent + indent + "'event': 'exit'," + EOL;
         res += indent + indent + "'out': konoha.OUT," + EOL;
         res += indent + indent + "'err': konoha.ERR," + EOL;
         res += indent + indent + "'document': document" + EOL;
         res += indent + "}));" + EOL;
+        res += indent + "}" + EOL;
         res += "};" + EOL;
     } else {
         res += "}" + EOL;
