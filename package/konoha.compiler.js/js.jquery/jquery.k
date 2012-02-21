@@ -106,9 +106,9 @@ class JQuery {
 
     /* CSS */
 
-    @Overload String  css(String name);
-    @Overload String  css(Map<String, dynamic> properties);
-    @Overload String  css(String name, dynamic value);
+              String  getcss(String name);
+    @Overload JQuery  css(Map<String, dynamic> properties);
+    @Overload JQuery  css(String name, dynamic value);
               Offset  offset();
               Offset  position();
     @Overload int     scrollTop();
@@ -233,3 +233,4 @@ class JQuery {
 @Overload JQuery JQuery.new (String html);
 @Overload JQuery JQuery.new (Element  element);
 @Overload JQuery JQuery.new (NodeList elements);
+@Overload JQuery JQuery.new (Window elements);
