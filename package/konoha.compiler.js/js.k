@@ -695,7 +695,7 @@ LABEL = "label";
         res += indent + indent + "'err': konoha.ERR," + EOL;
         res += indent + indent + "'document': document" + EOL;
         res += indent + "}));" + EOL;
-        res += indent + "}" + EOL;
+        //res += indent + "}" + EOL;
         res += "};" + EOL;
     } else {
         res += "}" + eol;
