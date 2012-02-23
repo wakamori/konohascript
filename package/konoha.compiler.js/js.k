@@ -696,6 +696,7 @@ LABEL = "label";
         res += indent + "}));" + eol;
         res += indent + "/* sleep */" + eol;
         res += indent + "for (var i = 0; i < 1000000; i++) {}" + eol;
+        res += indent + "checkState();" + eol;
         res += "}" + eol;
         res += eol;
     }
@@ -703,6 +704,9 @@ LABEL = "label";
     if ($env.JS_USE_WORKER == "true") {
         res += "onmessage = function " + TOP + space + "{" + eol;
         res += indent + "var json" + space + "=" + space + "JSON.parse(event.data);" + eol;
+        res += indent + "if (json.url != null) {" + eol;
+        res += indent + indent + "globalFileURL = json.url;" + eol;
+        res += indent + "}" + eol;
     } else {
         res += "function " + TOP + space + "{" + eol;
     }
