@@ -694,6 +694,8 @@ LABEL = "label";
         res += indent + indent + "'event': 'safepoint'," + eol;
         res += indent + indent + "'values': a" + eol;
         res += indent + "}));" + eol;
+        res += indent + "/* sleep */" + eol;
+        res += indent + "for (var i = 0; i < 1000000; i++) {}" + eol;
         res += "}" + eol;
         res += eol;
     }
