@@ -368,6 +368,21 @@ LABEL = "label";
         }
         bbs[i].insts[|bbs[i].insts|-1].codegen(asm);
         if (bbs[i].insts[|bbs[i].insts|-1].class != K_RET) {
+          if ($env.JS_USE_VALUEDUMP == "true") {
+            asm.addSource("safepoint({");
+            asm.incIndentLevel();
+            String[] varkeys = asm.opt.varNameMap.keys();
+            for (int j = 0; j < |varkeys|; j++) {
+              String key = varkeys[j];
+              String vdsrc = "'" + key + "': " + asm.opt.varNameMap[key];
+              if (j != |varkeys| - 1) {
+                  vdsrc += ",";
+              }
+              asm.addSource(vdsrc);
+            }
+            asm.decIndentLevel();
+            asm.addSource("});");
+          }
           asm.addSource("break;");
         }
         if (needSwitch) {
@@ -672,6 +687,17 @@ LABEL = "label";
     res += "function Script" + "()" + space + "{" + eol;
     res += "}" + eol;
     res += eol;
+
+    if ($env.JS_USE_VALUEDUMP == "true") {
+        res += "function safepoint(a) {" + eol;
+        res += indent + "postMessage(JSON.stringify({" + eol;
+        res += indent + indent + "'event': 'safepoint'," + eol;
+        res += indent + indent + "'values': a" + eol;
+        res += indent + "}));" + eol;
+        res += "}" + eol;
+        res += eol;
+    }
+
     if ($env.JS_USE_WORKER == "true") {
         res += "onmessage = function " + TOP + space + "{" + eol;
         res += indent + "var json" + space + "=" + space + "JSON.parse(event.data);" + eol;
