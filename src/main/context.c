@@ -74,6 +74,7 @@ static kcontext_t* new_hcontext(CTX ctx0)
 	kcontext_t *ctx;
 	static volatile size_t ctxid_counter = 0;
 	if(ctx0 == NULL) {
+		ctxid_counter = 0;
 		ctx = (kcontext_t*)malloc(sizeof(kcontext_t));
 		knh_bzero(ctx, sizeof(kcontext_t));
 	}
