@@ -1,6 +1,8 @@
 var konoha = function() {
     this.OUT = "";
     this.ERR = "";
+	this.THROWN = false;
+	this.THROWNMSG = "";
     this.printOUT = function() {
         if (this.OUT == "") return;
         var strings = this.OUT.split("\n");
@@ -291,18 +293,17 @@ konoha.Iterator = function(rawptr) {
     this.cur = 0;
     this.capacity = rawptr.getSize();
 }
+konoha.Iterator.prototype = new konoha.Object();
+konoha.Iterator.prototype.konohaclass = "konoha.Iterator";
 konoha.Iterator.prototype.next = function() {
     if (this.cur == this.capacity) {
         return null;
     } else {
-        var res = rawptr.get(this.cur);
+        var res = this.rawptr.get(this.cur);
         this.cur++;
         return res;
     }
 }
-
-konoha.Iterator.prototype = new konoha.Object();
-konoha.Iterator.prototype.konohaclass = "konoha.Iterator";
 
 /* String */
 konoha.String = function(rawptr) {

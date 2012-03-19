@@ -19,12 +19,12 @@ if ($env.JS_INCLUDE_RUNTIME == "true") {
 <title>sample</title>
 </head>
 <script type="text/javascript" language="javascript" src="./konoha.js" > </script>
-<script type="text/javascript" language="javascript" src="./konoha.math.js" > </script>
 <script type="text/javascript" language="javascript" src="./js.js" > </script>
 <script type="text/javascript" language="javascript" src="./js.dom.js" > </script>
 <script type="text/javascript" language="javascript" src="./js.jquery.js" > </script>
 <script type='text/javascript' src='jquery-1.7.1.min.js'></script>
 <script type="text/javascript" language="javascript" src="./js.math.js" > </script>
+<script type="text/javascript" language="javascript" src="./js.websocket.js" > </script>
 <script type="text/javascript">
 <!--
 """;
@@ -75,7 +75,7 @@ System.addClassField(CompilerOpt, Map<String, String>, "methodNameMap");
 System.addClassField(CompilerOpt, Map<String, String>, "classNameMap");
 @Public void CompilerOpt.init() {
     this.indentLevel = 0;
-    this.packages = ["konoha", "js", "js.dom", "js.jquery", "js.math"];
+    this.packages = ["konoha", "js", "js.dom", "js.jquery", "js.math", "js.websocket"];
     this.source = [];
     this.unexpectedMethods = ["isNull"];
     this.topLevelFunctionList = [];
@@ -529,8 +529,12 @@ LABEL = "label";
         asm.addSource(declVar(asm) + getVarName(asm) + space + "=" + space + "Math" + ".floor(" + op.inst0.getVarName(asm) + ");");
     } else if (tcid_str.indexOf("konoha.Iterator") == 0) {
         asm.addSource(declVar(asm) + getVarName(asm) + space + "=" + space + "new " + "konoha.Iterator" + "(" + op.inst0.getVarName(asm) + ");");
-    } else {
-        asm.addSource(declVar(asm) + getVarName(asm) + space + "=" + space + op.inst0.getVarName(asm) + ";");
+    } else if (op.scid == String && op.tcid == Float){
+		asm.addSource(declVar(asm) + getVarName(asm) + space + "=" + space + "parseFloat(" + op.inst0.getVarName(asm) + ".rawptr);");
+	} else if (op.scid == String && op.tcid == Int) {
+		asm.addSource(declVar(asm) + getVarName(asm) + space + "=" + space + "parseInt(" + op.inst0.getVarName(asm) + ".rawptr, 10);");
+	} else {
+		asm.addSource(declVar(asm) + getVarName(asm) + space + "=" + space + op.inst0.getVarName(asm) + ";");
     }
 }
 @Public @Override void K_JMP.codegen(Compiler asm) {
@@ -594,6 +598,7 @@ LABEL = "label";
 }
 @Public @Override void K_ERR.codegen(Compiler asm) {
     asm.opt.errors.add(op.msg);
+	asm.addSource("konoha.THROWN = true;");
     String s = "throw(\"Script!!: " + op.msg + "\");";
     asm.addSource(s);
     return;
@@ -615,7 +620,7 @@ LABEL = "label";
             break;
         case "bnul":
             if (type_str.endsWith("Script")) {
-                asm.addSource(declVar(asm) + getVarName(asm) + space + "=" + space + "script;");
+                asm.addSource(declVar(asm) + getVarName(asm) + space + "=" + space + "konoha.script;");
             }
             break;
         case "cwb":
@@ -731,12 +736,12 @@ LABEL = "label";
     }
     //res += indent + "if (json.type == 'start') {" + eol;
     for (int i = 0; i < this.opt.errors.size; i++) {
-        res += indent + "konoha.ERR += " + this.opt.errors[i] + ";" + eol;
+        res += indent + "konoha.ERR += \"" + this.opt.errors[i] + "\";" + eol;
     }
-    res += indent + "script = new Script();" + eol;
+    res += indent + "konoha.script = new Script();" + eol;
     foreach (fname in this.opt.topLevelFunctionList) {
         res += indent + fname + "(";
-        res += "script";
+        res += "konoha.script";
         res += ");" + eol;
     }
     if ($env.JS_USE_WORKER == "true") {
@@ -812,6 +817,7 @@ LABEL = "label";
             }
         }
     }
+	ous << "'checkpoint'" << eol;
     foreach (String fname in this.opt.protoFunc) {
         ous << "function " + fname + "(){}" << eol;
     }
@@ -823,7 +829,7 @@ LABEL = "label";
         ous << str << eol;
     }
     ous << createMain() << eol;
-    ous << createSymbol() << eol;
+    ous << createSymbol();
     if ((config.gen_html) == true) {
         ous << EOL << footer;
     }
