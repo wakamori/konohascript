@@ -387,6 +387,21 @@ LABEL = "label";
         }
         bbs[i].insts[|bbs[i].insts|-1].codegen(asm);
         if (bbs[i].insts[|bbs[i].insts|-1].class != K_RET) {
+          if ($env.JS_USE_VALUEDUMP == "true") {
+            asm.addSource("safepoint({");
+            asm.incIndentLevel();
+            String[] varkeys = asm.opt.varNameMap.keys();
+            for (int j = 0; j < |varkeys|; j++) {
+              String key = varkeys[j];
+              String vdsrc = "'" + key + "': " + asm.opt.varNameMap[key];
+              if (j != |varkeys| - 1) {
+                  vdsrc += ",";
+              }
+              asm.addSource(vdsrc);
+            }
+            asm.decIndentLevel();
+            asm.addSource("});");
+          }
           asm.addSource("break;");
         }
         if (needSwitch) {
@@ -696,9 +711,26 @@ LABEL = "label";
     res += "function Script" + "()" + space + "{" + eol;
     res += "}" + eol;
     res += eol;
+
+    if ($env.JS_USE_VALUEDUMP == "true") {
+        res += "function safepoint(a) {" + eol;
+        res += indent + "postMessage(JSON.stringify({" + eol;
+        res += indent + indent + "'event': 'safepoint'," + eol;
+        res += indent + indent + "'values': a" + eol;
+        res += indent + "}));" + eol;
+        res += indent + "/* sleep */" + eol;
+        res += indent + "for (var i = 0; i < 1000000; i++) {}" + eol;
+        res += indent + "checkState();" + eol;
+        res += "}" + eol;
+        res += eol;
+    }
+
     if ($env.JS_USE_WORKER == "true") {
         res += "onmessage = function " + TOP + space + "{" + eol;
         res += indent + "var json" + space + "=" + space + "JSON.parse(event.data);" + eol;
+        res += indent + "if (json.url != null) {" + eol;
+        res += indent + indent + "globalFileURL = json.url;" + eol;
+        res += indent + "}" + eol;
     } else {
         res += "function " + TOP + space + "{" + eol;
     }
@@ -713,12 +745,14 @@ LABEL = "label";
         res += ");" + eol;
     }
     if ($env.JS_USE_WORKER == "true") {
-        res += indent + "postMessage(JSON.stringify({" + eol;
-        res += indent + indent + "'out': konoha.OUT," + eol;
-        res += indent + indent + "'err': konoha.ERR," + eol;
-        res += indent + indent + "'document': document" + eol;
-        res += indent + "}));" + eol;
-        res += "};" + eol;
+        res += indent + "postMessage(JSON.stringify({" + EOL;
+        res += indent + indent + "'event': 'exit'," + EOL;
+        res += indent + indent + "'out': konoha.OUT," + EOL;
+        res += indent + indent + "'err': konoha.ERR," + EOL;
+        res += indent + indent + "'document': document" + EOL;
+        res += indent + "}));" + EOL;
+        //res += indent + "}" + EOL;
+        res += "};" + EOL;
     } else {
         res += "}" + eol;
     }
