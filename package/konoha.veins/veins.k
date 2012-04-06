@@ -974,11 +974,11 @@ class SessionMiddleware extends Middleware
         if (isDebug()) {
             ERR << "hook request: " << req << EOL;
         }
-        if (req.cookies["SESSION"] != null) {
+        if (req.cookies["KSESSIONID"] != null) {
             if (isDebug()) {
-                ERR << "SESSION: " << req.cookies["SESSION"] << EOL;
+                ERR << "KSESSIONID: " << req.cookies["KSESSIONID"] << EOL;
             }
-            req.session = new Session(req.cookies["SESSION"]);
+            req.session = new Session(req.cookies["KSESSIONID"]);
         }
         else {
             req.session = new Session();
@@ -998,10 +998,10 @@ class SessionMiddleware extends Middleware
         if (isDebug()) {
             ERR << "hook response" << EOL;
         }
-        if (req.cookies["SESSION"] == null ||
-                req.cookies["SESSION"] != req.session.origname) {
+        if (req.cookies["KSESSIONID"] == null ||
+                req.cookies["KSESSIONID"] != req.session.origname) {
             if (isDebug()) {
-                ERR << "old session: " << req.cookies["SESSION"] << EOL;
+                ERR << "old session: " << req.cookies["KSESSIONID"] << EOL;
                 ERR << "new session: " << req.session.fname.convert(to:SHA256) << EOL;
             }
             Date now = new Date();
@@ -1017,8 +1017,8 @@ class SessionMiddleware extends Middleware
                 now.day -= 14;
                 now.month -= 11;
             }
-            //res.setCookie("SESSION", req.session.fname, now.toRFC1123());
-            res.setCookie("SESSION", req.session.fname);
+            //res.setCookie("KSESSIONID", req.session.fname, now.toRFC1123());
+            res.setCookie("KSESSIONID", req.session.fname);
         }
         req.session.store();
         return res;
