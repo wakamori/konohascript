@@ -721,6 +721,10 @@ class Template
         hdf.readFile(path);
     }
 
+    void readString(String s) {
+        hdf.readString(s);
+    }
+
     int render_cb(String s) {
         buf += s;
         return Cs.STATUS_OK;
@@ -1004,19 +1008,19 @@ class SessionMiddleware extends Middleware
                 ERR << "old session: " << req.cookies["KSESSIONID"] << EOL;
                 ERR << "new session: " << req.session.fname.convert(to:SHA256) << EOL;
             }
-            Date now = new Date();
-            if (now.day < 15) {
-                now.day += 14;
-            }
-            else if (now.month < 12) {
-                now.day -= 14;
-                now.month += 1;
-            }
-            else {
-                now.year += 1;
-                now.day -= 14;
-                now.month -= 11;
-            }
+            //Date now = new Date();
+            //if (now.day < 15) {
+            //    now.day += 14;
+            //}
+            //else if (now.month < 12) {
+            //    now.day -= 14;
+            //    now.month += 1;
+            //}
+            //else {
+            //    now.year += 1;
+            //    now.day -= 14;
+            //    now.month -= 11;
+            //}
             //res.setCookie("KSESSIONID", req.session.fname, now.toRFC1123());
             res.setCookie("KSESSIONID", req.session.fname);
         }
