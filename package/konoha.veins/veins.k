@@ -215,6 +215,8 @@ String escapeSqlValue(dynamic sql)
 /* ======================================================================== */
 /* Classes. */
 
+class AutoIncrementInt;
+
 class Model
 {
     String db_path;
@@ -242,6 +244,10 @@ class Model
             }
             else if (c == int) {
                 type = "integer";
+                types[column] = "integer";
+            }
+            else if (c == AutoIncrementInt) {
+                type = "integer auto_increment";
                 types[column] = "integer";
             }
             else {
@@ -541,12 +547,12 @@ class User
 
     @Static User authenticate(String name, String password) {
         Model user = new Model("users", {
-            "id": int,
+            "id": AutoIncrementInt,
             "name": String,
             "password": String,
             "permissions": String,
             "groups": String
-        }, ["id", "name"]);
+        }, ["id"]);
         Map[] m = user.get("*", {
             "name": name,
             "password": password.convert(to:SHA256)
@@ -566,12 +572,12 @@ class User
 
     @Static boolean hasUser(String name) {
         Model user = new Model("users", {
-            "id": int,
+            "id": AutoIncrementInt,
             "name": String,
             "password": String,
             "permissions": String,
             "groups": String
-        }, ["id", "name"]);
+        }, ["id"]);
         Map[] m = user.get("*", {
             "name": name
         });
@@ -588,16 +594,16 @@ class User
     }
 
     @Static User addUser(String name, String password) {
-        if (User.hasUser(name) || |name| > 20) {
+        if (User.hasUser(name)) {
             return null;
         }
         Model user = new Model("users", {
-            "id": int,
+            "id": AutoIncrementInt,
             "name": String,
             "password": String,
             "permissions": String,
             "groups": String
-        }, ["id", "name"]);
+        }, ["id"]);
         user.add({
             "name": name,
             "password": password.convert(to:SHA256)
@@ -607,12 +613,12 @@ class User
 
     @Static String[] getList() {
         Model user = new Model("users", {
-            "id": int,
+            "id": AutoIncrementInt,
             "name": String,
             "password": String,
             "permissions": String,
             "groups": String
-        }, ["id", "name"]);
+        }, ["id"]);
         Map[] maps = user.get("name");
         String[] list = [];
         foreach (Map m in maps) {
