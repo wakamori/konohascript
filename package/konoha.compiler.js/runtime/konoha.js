@@ -270,7 +270,7 @@ konoha.Array.prototype.clear = function() {
 }
 konoha.Array.prototype.remove = function(n) {
     if (n >= 0 && n < this.capacity) {
-        this.rawptr.spice(n, n+1);
+        this.rawptr.splice(n, 1);
         this.capacity--;
     } else {
         throw('Script!!');
