@@ -14,14 +14,13 @@ function konoha() {
     }
 }
 
-if (typeof document === "undefined") {
-    function document() {
-        this._body = "<html><head></head><body></body></html>";
-        this.getElementsByTagName = function(tagname) {
-            return null;
-        };
-    }
-}
+/* for web workers */
+//function document() {
+//    this._body = "<html><head></head><body></body></html>";
+//    this.getElementsByTagName = function(tagname) {
+//        return null;
+//    };
+//}
 
 konoha = new konoha();
 konoha.Object = function(rawptr) {
