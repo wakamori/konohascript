@@ -1103,6 +1103,9 @@ String[] g_args;
         case 301:
             status = "301 Moved Permanently";
             break;
+        case 302:
+            status = "302 Found";
+            break;
         case 404:
             status = "404 Not Found";
             break;
