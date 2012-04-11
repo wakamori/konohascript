@@ -221,6 +221,7 @@ class Model
 {
     String db_path;
     String name;
+    int id;
 
     boolean isMysql() {
         return db_path.startsWith("mysql");
@@ -373,6 +374,7 @@ class Model
         }
         Connection con = new Connection(db_path);
         con.exec(query);
+        _id = con.getInsertId();
         con.close();
     }
 
@@ -403,6 +405,7 @@ class Model
         }
         Connection con = new Connection(db_path);
         con.exec(query);
+        _id = con.getInsertId();
         con.close();
     }
 

@@ -93,6 +93,7 @@ KMETHOD Connection_close(CTX ctx, ksfp_t *sfp _RIX)
 }
 
 #ifdef K_USING_PKG_MYSQL
+
 /* ------------------------------------------------------------------------ */
 //## method Int Connection.getInsertId();
 
@@ -101,7 +102,15 @@ KMETHOD Connection_getInsertId(CTX ctx, ksfp_t *sfp _RIX)
 	kConnection *c = (kConnection*)sfp[0].o;
 	RETURNi_((kuint_t)mysql_insert_id((MYSQL*)c->conn));
 }
-#endif
+
+#else
+
+KMETHOD Connection_getInsertId(CTX ctx, ksfp_t *sfp _RIX)
+{
+	TODO();
+}
+
+#endif /* K_USING_PKG_MYSQL */
 
 /* ------------------------------------------------------------------------ */
 //## method Int ResultSet.getSize();
