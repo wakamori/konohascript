@@ -736,9 +736,9 @@ LABEL = "label";
         res += "function " + TOP + space + "{" + eol;
     }
     //res += indent + "if (json.type == 'start') {" + eol;
-    for (int i = 0; i < this.opt.errors.size; i++) {
-        res += indent + "konoha.ERR += \"" + this.opt.errors[i] + "\";" + eol;
-    }
+    //for (int i = 0; i < this.opt.errors.size; i++) {
+    //    res += indent + "konoha.ERR += \"" + this.opt.errors[i] + "\";" + eol;
+    //}
     res += indent + "konoha.script = new Script();" + eol;
     foreach (fname in this.opt.topLevelFunctionList) {
         res += indent + fname + "(";
