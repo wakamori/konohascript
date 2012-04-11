@@ -296,6 +296,11 @@ konoha.Array.prototype.toString = function() {
     res += ']';
     return res;
 }
+konoha.Array.prototype.swap = function(m, n) {
+    var b = this.rawptr[m];
+    this.rawptr[m] = this.rawptr[n];
+    this.rawptr[n] = b;
+}
 
 /* Iterator */
 konoha.Iterator = function(rawptr) {
