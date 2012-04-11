@@ -598,8 +598,9 @@ LABEL = "label";
 }
 @Public @Override void K_ERR.codegen(Compiler asm) {
     asm.opt.errors.add(op.msg);
-	asm.addSource("konoha.THROWN = true;");
-    String s = "throw(\"Script!!: " + op.msg + "\");";
+	//asm.addSource("konoha.THROWN = true;");
+    //String s = "throw(\"Script!!: " + op.msg + "\");";
+    String s = "konoha.ERR += \"" + op.msg + "\";\n";
     asm.addSource(s);
     return;
 }
