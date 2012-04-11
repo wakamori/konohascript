@@ -12,6 +12,15 @@ function konoha() {
             body.appendChild(document.createElement('br'));
         }
     }
+    this.printERR = function() {
+        if (this.ERR == "") return;
+        var strings = this.ERR.split("\n");
+        var body = document.getElementsByTagName('body').item(0);
+        for (var i = 0; i < strings.length; i++) {
+            body.appendChild(document.createTextNode(strings[i]));
+            body.appendChild(document.createElement('br'));
+        }
+    }
 }
 
 /* for web workers */
