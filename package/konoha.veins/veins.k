@@ -1080,7 +1080,11 @@ String[] g_args;
                 g_handler = t[1];
                 if (isDebug()) {
                     ERR << "handler: " << g_handler << EOL;
-                    ERR << "args: " << g_args << EOL;
+                    ERR << "args: [";
+                    foreach (String g_arg in g_args) {
+                        ERR << g_arg << ", ";
+                    }
+                    ERR << "]" << EOL;
                 }
                 foreach (String middleware in middlewares) {
                     eval("g_res = " + middleware + ".hookHandler(g_req, g_handler, g_args);");
