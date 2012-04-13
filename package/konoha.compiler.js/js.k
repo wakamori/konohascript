@@ -35,8 +35,13 @@ String footer = """
 <body onload="">
 <script type="text/javascript">
 <!--
-konoha_main();
+try {
+    konoha_main();
+} catch (e) {
+    konoha.ERR = e;
+}
 konoha.printOUT();
+konoha.printERR();
 // -->
 </script>
 </body>
@@ -263,7 +268,7 @@ String myquote(dynamic value) {
         String res = "[";
         for(int i=0; i<size; i++) {
             if(i != 0) res += ", ";
-            res += value[i];
+            res += myquote(value[i]);
         }
         res += "]";
         return res;
@@ -647,9 +652,8 @@ LABEL = "label";
 }
 @Public @Override void K_ERR.codegen(Compiler asm) {
     asm.opt.errors.add(op.msg);
-	//asm.addSource("konoha.THROWN = true;");
-    //String s = "throw(\"Script!!: " + op.msg + "\");";
-    String s = "konoha.ERR += \"" + op.msg + "\";\n";
+	asm.addSource("konoha.THROWN = true;");
+    String s = "throw(\"Script!!: " + op.msg + "\");";
     asm.addSource(s);
     return;
 }
