@@ -258,6 +258,9 @@ String myquote(dynamic value) {
         Float f = value;
         return f.format("%.20f");
     } else if(((to String)value.class).startsWith("konoha.Array")) {
+		if (value == null) {
+			return "new konoha.Array([])";
+		}
         int i = value.get(0);
         int size = value.size;
         String res = "[";
