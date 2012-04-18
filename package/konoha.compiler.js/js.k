@@ -35,8 +35,13 @@ String footer = """
 <body onload="">
 <script type="text/javascript">
 <!--
-konoha_main();
+try {
+    konoha_main();
+} catch (e) {
+    konoha.ERR = e;
+}
 konoha.printOUT();
+konoha.printERR();
 // -->
 </script>
 </body>
@@ -249,49 +254,6 @@ String escape(String str) {
 	str = str.replace("\n", "\\n");
 	return str;
 }
-
-String myquote(dynamic value) {
-    if(value.class == String) {
-        String s = value;
-        return  "\"" + escape(s) + "\"";
-    } else if (value.class == Float) {
-        Float f = value;
-        return f.format("%.20f");
-    } else if(((to String)value.class).startsWith("konoha.Array")) {
-        int i = value.get(0);
-        int size = value.size;
-        String res = "[";
-        for(int i=0; i<size; i++) {
-            if(i != 0) res += ", ";
-            res += value[i];
-        }
-        res += "]";
-        return res;
-    } else if(((to String)value.class).startsWith("konoha.Map")) {
-        Map m = value;
-        String[] keys = m.keys();
-        String res = "{";
-        for(int i=0; i<|keys|; i++) {
-            if(i != 0) res += ", ";
-            dynamic o = m[keys[i]];
-            res += myquote(keys[i]) + ": " + myquote(o);
-        }
-        res += "} [";
-        for(int i=0; i<|keys|; i++) {
-            if(i != 0) res += " ";
-            res += m[keys[i]].class;
-        }
-        res += "]";
-        return res;
-    } else if (value.class == Method) {
-        Method m = (to Method)value;
-        return m.getMethodClass() + "." + m.getName();
-    } else if (value == null && value.class.isUnboxType()) {
-        return "0";
-    } else {
-        return "" + value;
-    }
-}
 LABEL = "label";
 @Public void Compiler.setMethodName(Method mtd) {
     int mtdId = 0;
@@ -335,6 +297,52 @@ LABEL = "label";
         setMethodName(mtd);
     }
     return opt.methodNameMap[s];
+}
+
+String myquote(Compiler asm, dynamic value) {
+    if(value.class == String) {
+        String s = value;
+        return  "new konoha.String(\"" + escape(s) + "\")";
+    } else if (value.class == Float) {
+        Float f = value;
+        return f.format("%.20f");
+    } else if(((to String)value.class).startsWith("konoha.Array")) {
+		if (value == null) {
+			return "new konoha.Array([])";
+		}
+        int i = value.get(0);
+        int size = value.size;
+        String res = "[";
+        for(int i=0; i<size; i++) {
+            if(i != 0) res += ", ";
+            res += myquote(asm, value[i]);
+        }
+        res += "]";
+        return "new konoha.Array(" + res + ")";
+    } else if(((to String)value.class).startsWith("konoha.Map")) {
+        Map m = value;
+        String[] keys = m.keys();
+        String res = "{";
+        for(int i=0; i<|keys|; i++) {
+            if(i != 0) res += ", ";
+            dynamic o = m[keys[i]];
+            res += myquote(asm, keys[i]) + ": " + myquote(asm, o);
+        }
+        res += "} [";
+        for(int i=0; i<|keys|; i++) {
+            if(i != 0) res += " ";
+            res += m[keys[i]].class;
+        }
+        res += "]";
+        return  "new konoha.Map(" + res + ")";
+    } else if (value.class == Func) {
+        Method m = ((to Func)value).method;
+        return asm.getMethodName(m);
+    } else if (value == null && value.class.isUnboxType()) {
+        return "0";
+    } else {
+        return "" + value;
+    }
 }
 @Public void Compiler.addSource(String str) {
     String tmp = "";
@@ -436,6 +444,21 @@ LABEL = "label";
         }
         bbs[i].insts[|bbs[i].insts|-1].codegen(asm);
         if (bbs[i].insts[|bbs[i].insts|-1].class != K_RET) {
+          if ($env.JS_USE_VALUEDUMP == "true") {
+            asm.addSource("safepoint({");
+            asm.incIndentLevel();
+            String[] varkeys = asm.opt.varNameMap.keys();
+            for (int j = 0; j < |varkeys|; j++) {
+              String key = varkeys[j];
+              String vdsrc = "'" + key + "': " + asm.opt.varNameMap[key];
+              if (j != |varkeys| - 1) {
+                  vdsrc += ",";
+              }
+              asm.addSource(vdsrc);
+            }
+            asm.decIndentLevel();
+            asm.addSource("});");
+          }
           asm.addSource("break;");
         }
         if (needSwitch) {
@@ -679,15 +702,15 @@ LABEL = "label";
     asm.addSource(op.inst0.getVarName(asm) + ".set(" + op.inst1.getVarName(asm) + "," + space + op.inst2.getVarName(asm) + ");");
 }
 @Public @Override void K_CONST.codegen(Compiler asm) {
-    if (op.const_table[op.table_idx].class == Int || op.const_table[op.table_idx].class == Float || op.const_table[op.table_idx].class == Boolean) {
-        asm.addSource(declVar(asm) + getVarName(asm) + space + "=" + space + myquote(op.const_table[op.table_idx]) + ";");
-    } else if (op.const_table[op.table_idx].class == Class) {
-        asm.addSource(declVar(asm) + getVarName(asm) + space + "=" + space + "new " + uscore("konoha.String") + "(" + myquote(op.const_table[op.table_idx]) + ");");
-    } else {
-		Object o = op.const_table[op.table_idx];
-		Class c =  op.const_table[op.table_idx].class;
-        asm.addSource(declVar(asm) + getVarName(asm) + space + "=" + space + "new " + asm.class2str(op.const_table[op.table_idx].class) + "(" + myquote(o)/*quote(op.const_table[op.table_idx])*/ + ");");
-    }
+    //if (op.const_table[op.table_idx].class == Int || op.const_table[op.table_idx].class == Float || op.const_table[op.table_idx].class == Boolean) {
+    //    asm.addSource(declVar(asm) + getVarName(asm) + space + "=" + space + myquote(op.const_table[op.table_idx]) + ";");
+    //} else if (op.const_table[op.table_idx].class == Class) {
+    //    asm.addSource(declVar(asm) + getVarName(asm) + space + "=" + space + "new " + uscore("konoha.String") + "(" + myquote(op.const_table[op.table_idx]) + ");");
+    //} else {
+	Object o = op.const_table[op.table_idx];
+	Class c =  op.const_table[op.table_idx].class;
+	asm.addSource(declVar(asm) + getVarName(asm) + space + "=" + space + myquote(asm, o) + ";");
+    //}
 }
 @Public @Override void K_GetField.codegen (Compiler asm) {
     asm.addSource(declVar(asm) + getVarName(asm) + space + "=" + space + op.inst0.getVarName(asm) + "." + obfuscateString(op.bn, 'a', true) + ";");
@@ -747,16 +770,33 @@ LABEL = "label";
     res += "function Script" + "()" + space + "{" + eol;
     res += "}" + eol;
     res += eol;
+
+    if ($env.JS_USE_VALUEDUMP == "true") {
+        res += "function safepoint(a) {" + eol;
+        res += indent + "postMessage(JSON.stringify({" + eol;
+        res += indent + indent + "'event': 'safepoint'," + eol;
+        res += indent + indent + "'values': a" + eol;
+        res += indent + "}));" + eol;
+        res += indent + "/* sleep */" + eol;
+        res += indent + "for (var i = 0; i < 1000000; i++) {}" + eol;
+        res += indent + "checkState();" + eol;
+        res += "}" + eol;
+        res += eol;
+    }
+
     if ($env.JS_USE_WORKER == "true") {
         res += "onmessage = function " + TOP + space + "{" + eol;
         res += indent + "var json" + space + "=" + space + "JSON.parse(event.data);" + eol;
+        res += indent + "if (json.url != null) {" + eol;
+        res += indent + indent + "globalFileURL = json.url;" + eol;
+        res += indent + "}" + eol;
     } else {
         res += "function " + TOP + space + "{" + eol;
     }
     //res += indent + "if (json.type == 'start') {" + eol;
-    for (int i = 0; i < this.opt.errors.size; i++) {
-        res += indent + "konoha.ERR += \"" + this.opt.errors[i] + "\";" + eol;
-    }
+    //for (int i = 0; i < this.opt.errors.size; i++) {
+    //    res += indent + "konoha.ERR += \"" + this.opt.errors[i] + "\";" + eol;
+    //}
     res += indent + "konoha.script = new Script();" + eol;
     foreach (fname in this.opt.topLevelFunctionList) {
         res += indent + fname + "(";
@@ -764,12 +804,14 @@ LABEL = "label";
         res += ");" + eol;
     }
     if ($env.JS_USE_WORKER == "true") {
-        res += indent + "postMessage(JSON.stringify({" + eol;
-        res += indent + indent + "'out': konoha.OUT," + eol;
-        res += indent + indent + "'err': konoha.ERR," + eol;
-        res += indent + indent + "'document': document" + eol;
-        res += indent + "}));" + eol;
-        res += "};" + eol;
+        res += indent + "postMessage(JSON.stringify({" + EOL;
+        res += indent + indent + "'event': 'exit'," + EOL;
+        res += indent + indent + "'out': konoha.OUT," + EOL;
+        res += indent + indent + "'err': konoha.ERR," + EOL;
+        res += indent + indent + "'document': document" + EOL;
+        res += indent + "}));" + EOL;
+        //res += indent + "}" + EOL;
+        res += "};" + EOL;
     } else {
         res += "}" + eol;
     }
@@ -796,10 +838,6 @@ LABEL = "label";
 }
 @Public String Compiler.createClassDefinition(Class c, String cname) {
     String res = "";
-    if (c.getSuper() != Object) {
-        String supcname = class2str(c.getSuper());
-        res += uscore(cname) + ".prototype = new " + uscore(supcname) + "()" + eol;
-    }
     res += "function " + uscore(cname) + "()" + space + "{" + eol;
     int i = 0;
     foreach (Class fieldclass in c.getFieldClasses()) {
@@ -812,6 +850,12 @@ LABEL = "label";
         i++;
     }
     res += "}" + eol;
+    if (c.getSuper() != Object) {
+        String supcname = class2str(c.getSuper());
+        res += uscore(cname) + ".prototype = new " + uscore(supcname) + "();" + eol;
+    } else {
+        res += uscore(cname) + ".prototype = new " + uscore("konoha.Object") + "();" + eol;
+	}
     return res;
 }
 @Public void Compiler.dump(Boolean dump) {

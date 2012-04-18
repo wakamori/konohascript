@@ -207,6 +207,30 @@ js.dom.CanvasContext = function(rawptr) {
     this.getFont = function() {
         return new konoha.String(this.rawptr.font);
     }
+	this.setLineWidth = function(width) {
+		this.rawptr.lineWidth = width;
+	}
+	this.getLineWidth = function() {
+		return this.rawptr.lineWidth;
+	}
+	this.setLineCap = function(style) {
+		this.rawptr.lineCap = style.rawptr;
+	}
+	this.getLineCap = function() {
+		return new konoha.String(this.rawptr.lineCap);
+	}
+	this.setLineJoin = function(style) {
+		this.rawptr.lineJoin = style.rawptr;
+	}
+	this.getLineJoin = function() {
+		return new konoha.String(this.rawptr.lineJoin);
+	}
+	this.setMiterLimit = function(limit) {
+		this.rawptr.miterLimit = limit;
+	}
+	this.getMiterLimit = function() {
+		return this.rawptr.miterLimit;
+	}
     this.setGlobalCompositeOperation = function(op) {
         this.rawptr.globalCompositeOperation = op.rawptr;
     }
