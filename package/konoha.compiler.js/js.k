@@ -799,10 +799,6 @@ LABEL = "label";
 }
 @Public String Compiler.createClassDefinition(Class c, String cname) {
     String res = "";
-    if (c.getSuper() != Object) {
-        String supcname = class2str(c.getSuper());
-        res += uscore(cname) + ".prototype = new " + uscore(supcname) + "()" + eol;
-    }
     res += "function " + uscore(cname) + "()" + space + "{" + eol;
     int i = 0;
     foreach (Class fieldclass in c.getFieldClasses()) {
@@ -815,6 +811,12 @@ LABEL = "label";
         i++;
     }
     res += "}" + eol;
+    if (c.getSuper() != Object) {
+        String supcname = class2str(c.getSuper());
+        res += uscore(cname) + ".prototype = new " + uscore(supcname) + "();" + eol;
+    } else {
+        res += uscore(cname) + ".prototype = new " + uscore("konoha.Object") + "();" + eol;
+	}
     return res;
 }
 @Public void Compiler.dump(Boolean dump) {
