@@ -71,6 +71,14 @@ class CanvasContext {
     // void addColorStop();
     void setFont(String font);
     void getFont(String font);
+	void setLineWidth(float width);
+	float getLineWidth();
+	void setLineCap(String style);
+	String getLineCap();
+	void setLineJoin(String style);
+	String getLineJoin();
+	void setMiterLimit(float limit);
+	float getMiterLimit();
     void setGlobalCompositeOperation(String op);
     String getGlobalCompositeOperation();
     void arc(float x, float y, float radius, float startAngle, float endAndle, boolean anticlockwise);

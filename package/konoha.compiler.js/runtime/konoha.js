@@ -40,7 +40,21 @@ konoha.Object.prototype.getClass = function() {
     return new Class(this.konohaclass);
 }
 konoha.Object.prototype.toString = function() {
-    return this.rawptr;
+	if (this.rawptr) {
+		return this.rawptr;
+	} else {
+		var res = "{";
+		for (var i in this) {
+			if (typeof(this[i]) != "function" && i != "rawptr" && i != "konohaclass") {
+			console.log(i);
+			console.log(typeof(this[i]));
+			console.log(this[i]);
+			res += this[i] + " ";
+			}
+		}
+		res += "}";
+		return res;
+	}
 }
 
 /* Class */
