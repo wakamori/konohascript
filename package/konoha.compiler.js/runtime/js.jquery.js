@@ -574,6 +574,9 @@ js.jquery.JEvent = new function() {
     jevent.prototype.pageY = function() {
         return this.rawptr.pageY;
     }
+    jevent.prototype.which = function() {
+        return this.rawptr.which;
+    }
     jevent.prototype.timeStamp = function() {
         return this.rawptr.timeStamp;
     }
@@ -594,9 +597,6 @@ js.jquery.JEvent = new function() {
     }
     jevent.prototype.isImmediatePropagationStopped = function() {
         return this.rawptr.isImmediatePropagationStopped();
-    }
-    jevent.prototype.which = function() {
-        return new this.rawptr.which;
     }
     jevent.prototype._new = function() {
         var args = verifyArgs(Array.prototype.slice.call(arguments));
