@@ -359,7 +359,7 @@ class Model
             }
         }
         if (isMysql()) {
-            query += "on duplicate key update ";
+            query += " on duplicate key update ";
             for (int i = 0; i < |keys|; i++) {
                 if (i < |keys| - 1) {
                     query += keys[i] + " = " + values[i] + ", ";
@@ -470,8 +470,9 @@ class Model
 @Singleton class FileStorage
 {
     String checkName(String name) {
-        if(name.indexOf("/") != -1) return null;
         if(name.indexOf("..") != -1) return null;
+        Regex r = new Regex("^[\\w_\\.\\-/]+$");
+        if(name.search(r) < 0) return null;
         return getMediaDir() + name;
     }
 
@@ -492,6 +493,26 @@ class Model
             return new OutputStream(name, mode);
         }
         return null;
+    }
+
+    boolean mkdir(String name, int mode) {
+        name = checkName(name);
+        if (isDebug()) {
+            ERR << "mkdir: " << name << EOL;
+        }
+        if (name.endsWith("/")) {
+            name = name.substring(0, |name| - 1);
+        }
+        String[] dirnames = name.split("/");
+        if (!chdir("/")) {
+            return false;
+        }
+        for (int i = 0; i < |dirnames| - 1; i++) {
+            if (dirnames[i] != "" && !chdir(dirnames[i])) {
+                return false;
+            }
+        }
+        return System.mkdir(name, mode);
     }
 }
 
