@@ -15,6 +15,9 @@ var initPublicMethods = function() {
 	sys.alert = function(o) {
 		alert(o.toString());
 	}
+	sys.log = function(o) {
+		console.log(o.toString());
+	}
 };
 initPublicMethods();
 /* Document */
