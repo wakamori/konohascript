@@ -595,6 +595,9 @@ js.jquery.JEvent = new function() {
     jevent.prototype.isImmediatePropagationStopped = function() {
         return this.rawptr.isImmediatePropagationStopped();
     }
+    jevent.prototype.which = function() {
+        return new this.rawptr.which;
+    }
     jevent.prototype._new = function() {
         var args = verifyArgs(Array.prototype.slice.call(arguments));
         if (arguments.length == 1) {
