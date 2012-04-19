@@ -632,6 +632,9 @@ String myquote(Compiler asm, dynamic value) {
     String thisclass = asm.mtdclass2str(op.mtd);
 	if (op.mtd.getName() == "") {
 		/* Func.() */
+		if (this.type != Void) {
+			res = declVar(asm) + getVarName(asm) + space + "=" + space;
+		}
 		res += args[0].getVarName(asm);
 	} else if (flag) {
         res += args[0].getVarName(asm) + ".";
