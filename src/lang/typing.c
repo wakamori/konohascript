@@ -2147,6 +2147,9 @@ static inline void unboxSFP(CTX ctx, ksfp_t *sfp)
 	sfp[0].ndata = (sfp[0].i)->n.data;
 }
 
+#define USING_COMPILER_PKG(CTX)\
+	((CTX)->share->compilerAPI != NULL && IS_NOTNULL((CTX)->share->konoha_compiler))\
+
 static kTerm* CALL_toCONST(CTX ctx, kStmtExpr *stmt, kMethod *mtd)
 {
 	int isCONST = 0;
@@ -2154,7 +2157,7 @@ static kTerm* CALL_toCONST(CTX ctx, kStmtExpr *stmt, kMethod *mtd)
 #ifdef K_USING_DEBUG
 	if(Method_isConst(mtd) || GammaBuilder_isEnforceConst(ctx->gma)) {
 #else
-	if(Method_isConst(mtd) || GammaBuilder_isEnforceConst(ctx->gma) || IS_SCRIPTLEVEL(ctx)) {
+	if(Method_isConst(mtd) || GammaBuilder_isEnforceConst(ctx->gma) || (!USING_COMPILER_PKG(ctx) && IS_SCRIPTLEVEL(ctx))) {
 #endif
 		size_t i = STT_(stmt) == TT_NEW ? 2: 1;
 		for(; i < size; i++) {
