@@ -1,5 +1,5 @@
-@Public int System.setTimeout(int ms, Method callback);
-@Public int System.setInterval(Method callback, int ms);
+@Public int System.setTimeout(int ms, Func callback);
+@Public int System.setInterval(Func callback, int ms);
 @Public void System.clearInterval(int id);
 class NodeList;
 class NamedNodeMap;
@@ -71,6 +71,14 @@ class CanvasContext {
     // void addColorStop();
     void setFont(String font);
     void getFont(String font);
+	void setLineWidth(float width);
+	float getLineWidth();
+	void setLineCap(String style);
+	String getLineCap();
+	void setLineJoin(String style);
+	String getLineJoin();
+	void setMiterLimit(float limit);
+	float getMiterLimit();
     void setGlobalCompositeOperation(String op);
     String getGlobalCompositeOperation();
     void arc(float x, float y, float radius, float startAngle, float endAndle, boolean anticlockwise);
