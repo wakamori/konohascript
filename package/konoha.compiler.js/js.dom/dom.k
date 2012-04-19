@@ -1,6 +1,7 @@
 @Public int System.setTimeout(int ms, Func callback);
 @Public int System.setInterval(Func callback, int ms);
 @Public void System.clearInterval(int id);
+@Public void System.alert(Object o);
 class NodeList;
 class NamedNodeMap;
 class Document;

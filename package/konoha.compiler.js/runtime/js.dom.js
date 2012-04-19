@@ -12,6 +12,9 @@ var initPublicMethods = function() {
     sys.clearInterval = function(id) {
         clearInterval(id);
     }
+	sys.alert = function(o) {
+		alert(o.toString());
+	}
 };
 initPublicMethods();
 /* Document */

@@ -252,6 +252,7 @@ String uscore(String in) {
 String escape(String str) {
 	str = str.replace("\t", "\\t");
 	str = str.replace("\n", "\\n");
+	str = str.replace("\"", "\\\"");
 	return str;
 }
 
