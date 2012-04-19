@@ -255,51 +255,6 @@ String escape(String str) {
 	return str;
 }
 
-String myquote(dynamic value) {
-    if(value.class == String) {
-        String s = value;
-        return  "new konoha.String(\"" + escape(s) + "\")";
-    } else if (value.class == Float) {
-        Float f = value;
-        return f.format("%.20f");
-    } else if(((to String)value.class).startsWith("konoha.Array")) {
-		if (value == null) {
-			return "new konoha.Array([])";
-		}
-        int i = value.get(0);
-        int size = value.size;
-        String res = "[";
-        for(int i=0; i<size; i++) {
-            if(i != 0) res += ", ";
-            res += myquote(value[i]);
-        }
-        res += "]";
-        return "new konoha.Array(" + res + ")";
-    } else if(((to String)value.class).startsWith("konoha.Map")) {
-        Map m = value;
-        String[] keys = m.keys();
-        String res = "{";
-        for(int i=0; i<|keys|; i++) {
-            if(i != 0) res += ", ";
-            dynamic o = m[keys[i]];
-            res += myquote(keys[i]) + ": " + myquote(o);
-        }
-        res += "} [";
-        for(int i=0; i<|keys|; i++) {
-            if(i != 0) res += " ";
-            res += m[keys[i]].class;
-        }
-        res += "]";
-        return  "new konoha.Map(" + res + ")";
-    } else if (value.class == Method) {
-        Method m = (to Method)value;
-        return m.getMethodClass() + "." + m.getName();
-    } else if (value == null && value.class.isUnboxType()) {
-        return "0";
-    } else {
-        return "" + value;
-    }
-}
 LABEL = "label";
 @Public void Compiler.setMethodName(Method mtd) {
     int mtdId = 0;
@@ -343,6 +298,52 @@ LABEL = "label";
         setMethodName(mtd);
     }
     return opt.methodNameMap[s];
+}
+
+String myquote(Compiler asm, dynamic value) {
+    if(value.class == String) {
+        String s = value;
+        return  "new konoha.String(\"" + escape(s) + "\")";
+    } else if (value.class == Float) {
+        Float f = value;
+        return f.format("%.20f");
+    } else if(((to String)value.class).startsWith("konoha.Array")) {
+		if (value == null) {
+			return "new konoha.Array([])";
+		}
+        int i = value.get(0);
+        int size = value.size;
+        String res = "[";
+        for(int i=0; i<size; i++) {
+            if(i != 0) res += ", ";
+            res += myquote(asm, value[i]);
+        }
+        res += "]";
+        return "new konoha.Array(" + res + ")";
+    } else if(((to String)value.class).startsWith("konoha.Map")) {
+        Map m = value;
+        String[] keys = m.keys();
+        String res = "{";
+        for(int i=0; i<|keys|; i++) {
+            if(i != 0) res += ", ";
+            dynamic o = m[keys[i]];
+            res += myquote(asm, keys[i]) + ": " + myquote(asm, o);
+        }
+        res += "} [";
+        for(int i=0; i<|keys|; i++) {
+            if(i != 0) res += " ";
+            res += m[keys[i]].class;
+        }
+        res += "]";
+        return  "new konoha.Map(" + res + ")";
+    } else if (value.class == Func) {
+        Method m = ((to Func)value).method;
+        return asm.getMethodName(m);
+    } else if (value == null && value.class.isUnboxType()) {
+        return "0";
+    } else {
+        return "" + value;
+    }
 }
 @Public void Compiler.addSource(String str) {
     String tmp = "";
@@ -709,7 +710,7 @@ LABEL = "label";
     //} else {
 	Object o = op.const_table[op.table_idx];
 	Class c =  op.const_table[op.table_idx].class;
-	asm.addSource(declVar(asm) + getVarName(asm) + space + "=" + space + myquote(o) + ";");
+	asm.addSource(declVar(asm) + getVarName(asm) + space + "=" + space + myquote(asm, o) + ";");
     //}
 }
 @Public @Override void K_GetField.codegen (Compiler asm) {
