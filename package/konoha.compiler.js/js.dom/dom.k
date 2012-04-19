@@ -2,6 +2,7 @@
 @Public int System.setInterval(Func callback, int ms);
 @Public void System.clearInterval(int id);
 @Public void System.alert(Object o);
+@Public void System.log(Object o);
 class NodeList;
 class NamedNodeMap;
 class Document;
