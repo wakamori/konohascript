@@ -254,6 +254,7 @@ String escape(String str) {
 	str = str.replace("\n", "\\n");
 	return str;
 }
+
 LABEL = "label";
 @Public void Compiler.setMethodName(Method mtd) {
     int mtdId = 0;
