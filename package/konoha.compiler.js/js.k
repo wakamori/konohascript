@@ -630,7 +630,10 @@ String myquote(Compiler asm, dynamic value) {
         res = declVar(asm) + getVarName(asm) + space + "=" + space;
     }
     String thisclass = asm.mtdclass2str(op.mtd);
-    if (flag) {
+	if (op.mtd.getName() == "") {
+		/* Func.() */
+		res += args[0].getVarName(asm);
+	} else if (flag) {
         res += args[0].getVarName(asm) + ".";
     } else if (thisclass != "Script") {
         res += uscore(thisclass) + ".";
