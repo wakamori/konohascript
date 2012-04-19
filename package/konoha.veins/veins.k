@@ -528,11 +528,13 @@ class Group
 
 class User
 {
+    int id;
     String name;
     String[] perms;
     String[] groups;
 
-    User(String name, String[] perms, String[] groups) {
+    User(int id, String name, String[] perms, String[] groups) {
+        _id = id;
         _name = name;
         _perms = perms;
         _groups = groups;
@@ -561,11 +563,12 @@ class User
             "password": password.convert(to:SHA256)
         });
         if (|m| == 1) {
+            int id = (to int)m[0]["id"];
             String perms = m[0]["permissions"];
-            String groups = m[0]["permissions"];
+            String groups = m[0]["groups"];
             String[] p = (perms == null) ? [] : perms.split(",");
             String[] g = (groups == null) ? [] : groups.split(",");
-            return new User(name, p, g);
+            return new User(id, name, p, g);
         }
         if (isDebug()) {
             ERR << "authenticate result: " << m << EOL;
@@ -611,7 +614,7 @@ class User
             "name": name,
             "password": password.convert(to:SHA256)
         });
-        return new User(name, [], []);
+        return new User(user.id, name, [], []);
     }
 
     @Static String[] getList() {
