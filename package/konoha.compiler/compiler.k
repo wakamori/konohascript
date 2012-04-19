@@ -193,7 +193,7 @@ class K_Inst {
         if (c == null) {
             c = v.type;
         }
-        this.type   = c;
+        this.type = c;
         this.uline  = Compiler.getCurrentUline();
     }
 
