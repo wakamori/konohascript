@@ -6,6 +6,7 @@ class Offset {
 Offset Offset.new(int top, int left);
 class JEvent {
     String type();
+    int which();
     Element target();
     Element relatedTarget();
     Element currentTarget();
