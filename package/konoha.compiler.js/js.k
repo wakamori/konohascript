@@ -337,9 +337,8 @@ String myquote(Compiler asm, dynamic value) {
         }
         res += "]";
         return  "new konoha.Map(" + res + ")";
-    } else if (value.class == Func) {
-        Method m = ((to Func)value).method;
-        return asm.getMethodName(m);
+	} else if (((to String)value.class).startsWith("konoha.Func")) {
+        return asm.getMethodName(value.getMethod());
     } else if (value == null && value.class.isUnboxType()) {
         return "0";
     } else {
