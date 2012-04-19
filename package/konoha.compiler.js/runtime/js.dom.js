@@ -7,7 +7,7 @@ var initPublicMethods = function() {
     sys.setInterval = function(callback, i) {
         console.log(i);
         console.log(callback);
-        return setInterval(callback.rawptr, i);
+        return setInterval(callback, i);
     }
     sys.clearInterval = function(id) {
         clearInterval(id);
