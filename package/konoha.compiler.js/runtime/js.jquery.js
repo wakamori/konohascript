@@ -71,7 +71,7 @@ var initJQuery = function() {
     jquery.prototype.getHTML = function() {
         return new konoha.String(this.rawptr.html());
     }
-    jquery.prototype.html = function(val) {
+    jquery.prototype.hTML = function(val) {
         return new jquery(this.rawptr.html(val.rawptr));
     }
     jquery.prototype.getText = function() {
