@@ -780,11 +780,9 @@ class Template
     boolean load(String name) {
         String path = FileStorage.checkName(name);
         if (path == null) return false;
-        InputStream ins = new InputStream(path);
-        if (ins == null) {
+        if (System.stat(path) == null) {
             return false;
         }
-        ins.close();
         hdf.readFile(path);
         return true;
     }
@@ -960,12 +958,12 @@ class Session
     }
 
     boolean load() {
-        InputStream ins = new InputStream(path);
-        if (ins == null) {
+        if (System.stat(path)== null) {
             _j = new Json();
             return false;
         }
         else {
+            InputStream ins = new InputStream(path);
             _j = Json.parse(ins.read().decode(to:xor));
             ins.close();
             return true;
