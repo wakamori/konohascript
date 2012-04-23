@@ -373,7 +373,7 @@ konoha.String.prototype.match = function (re) {
     var list = this.rawptr.match(re.rawptr);
     var res = [];
     for (element in list) {
-        res.push(new konoha.String(element));
+        res.push(new konoha.String(list[element]));
     }
     return new konoha.Array(res);
 }
