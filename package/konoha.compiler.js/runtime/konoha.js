@@ -381,7 +381,7 @@ konoha.String.prototype.split = function(re) {
     var list = this.rawptr.split(re.rawptr);
     var res = [];
     for (element in list) {
-        res.push(new konoha.String(element));
+        res.push(new konoha.String(list[element]));
     }
     return new konoha.Array(res);
 }

@@ -305,6 +305,8 @@ String myquote(Compiler asm, dynamic value) {
     if(value.class == String) {
         String s = value;
         return  "new konoha.String(\"" + escape(s) + "\")";
+    } else if (value.class == Regex) {
+        return "new konoha.Regex(" + value + ")";
     } else if (value.class == Float) {
         Float f = value;
         return f.format("%.20f");
