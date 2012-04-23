@@ -768,6 +768,15 @@ static KMETHOD Regex_new(CTX ctx, ksfp_t *sfp _RIX)
 }
 
 /* ------------------------------------------------------------------------ */
+//## @Const method String Regex.getPattern();
+
+static KMETHOD Regex_getPattern(CTX ctx, ksfp_t *sfp _RIX)
+{
+	kRegex *re = sfp[0].re;
+	RETURN_(re->pattern);
+}
+
+/* ------------------------------------------------------------------------ */
 //## @Hidden @Private method dynamic String.opLINK(String path, NameSpace _, Class _);
 
 static KMETHOD String_opLINK(CTX ctx, ksfp_t *sfp _RIX)

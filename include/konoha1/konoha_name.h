@@ -3,7 +3,7 @@
 /* ------------------------------------------------------------------------ */
 /* MACROS */
 #ifndef K_REVISION
-#define K_REVISION                      933
+#define K_REVISION                      963
 #endif
 #define K_BUILDID                       1198
 
@@ -1087,6 +1087,7 @@
 #define MN_setAll       MN_toSETTER(FN_all)
 #define MN_sort         FN_sort
 #define MN_extract      FN_extract
+#define MN_getPattern   MN_toGETTER(FN_pattern)
 #define MN_write        FN_write
 #define MN_exit         FN_exit
 #define MN_reverse      FN_reverse
