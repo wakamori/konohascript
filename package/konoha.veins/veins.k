@@ -469,6 +469,10 @@ class Model
 
 @Singleton class FileStorage
 {
+    String getRoot() {
+        return getMediaDir();
+    }
+
     String checkName(String name) {
         if(name.indexOf("..") != -1) return null;
         Regex r = new Regex("^[\\w_\\.\\-/]+$");
