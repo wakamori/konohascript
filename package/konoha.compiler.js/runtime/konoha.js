@@ -6,7 +6,7 @@ function konoha() {
     this.printOUT = function() {
         if (this.OUT == "") return;
         var code = document.createElement('pre');
-        if (typeof element.textContent != "undefined") {
+        if (typeof code.textContent != "undefined") {
             code.textContent = this.OUT;
         } else {
             code.innerText = this.OUT;
@@ -17,7 +17,7 @@ function konoha() {
     this.printERR = function() {
         if (this.ERR == "") return;
         var code = document.createElement('pre');
-        if (typeof element.textContent != "undefined") {
+        if (typeof code.textContent != "undefined") {
             code.textContent = this.ERR;
         } else {
             code.innerText = this.ERR;
