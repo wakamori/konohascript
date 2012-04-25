@@ -6,14 +6,22 @@ function konoha() {
     this.printOUT = function() {
         if (this.OUT == "") return;
         var code = document.createElement('pre');
-        code.innerText = this.OUT;
+        if (typeof element.textContent != "undefined") {
+            code.textContent = this.OUT;
+        } else {
+            code.innerText = this.OUT;
+        }
         var body = document.getElementsByTagName('body').item(0);
         body.appendChild(code);
     }
     this.printERR = function() {
         if (this.ERR == "") return;
         var code = document.createElement('pre');
-        code.innerText = this.ERR;
+        if (typeof element.textContent != "undefined") {
+            code.textContent = this.ERR;
+        } else {
+            code.innerText = this.ERR;
+        }
         var body = document.getElementsByTagName('body').item(0);
         body.appendChild(code);
     }
