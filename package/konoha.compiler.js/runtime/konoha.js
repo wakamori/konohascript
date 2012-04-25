@@ -5,21 +5,17 @@ function konoha() {
 	this.THROWNMSG = "";
     this.printOUT = function() {
         if (this.OUT == "") return;
-        var strings = this.OUT.split("\n");
+        var code = document.createElement('pre');
+        code.innerText = this.OUT;
         var body = document.getElementsByTagName('body').item(0);
-        for (var i = 0; i < strings.length; i++) {
-            body.appendChild(document.createTextNode(strings[i]));
-            body.appendChild(document.createElement('br'));
-        }
+        body.appendChild(code);
     }
     this.printERR = function() {
         if (this.ERR == "") return;
-        var strings = this.ERR.split("\n");
+        var code = document.createElement('pre');
+        code.innerText = this.ERR;
         var body = document.getElementsByTagName('body').item(0);
-        for (var i = 0; i < strings.length; i++) {
-            body.appendChild(document.createTextNode(strings[i]));
-            body.appendChild(document.createElement('br'));
-        }
+        body.appendChild(code);
     }
 }
 
