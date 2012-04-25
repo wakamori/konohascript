@@ -894,6 +894,14 @@ class HttpResponse
     }
 }
 
+class HttpResponseRedirect extends HttpResponse
+{
+    HttpResponseRedirect(String location) {
+        _h = [("Location", location)];
+        _status = 302;
+    }
+}
+
 @Singleton class Url
 {
     Tuple<Regex,Func<HttpRequest,String[]=>HttpResponse>>[] getPatterns() {
