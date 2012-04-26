@@ -889,7 +889,10 @@ static void StmtITR_eval(CTX ctx, kStmtExpr *stmtITR)
 			break;
 		}
 		case STT_IF: /* Conditional Compilation */
-			IF_eval(ctx, stmt); break;
+			if (ctx->share->compilerAPI == NULL && IS_NULL(ctx->share->konoha_compiler)) {
+				IF_eval(ctx, stmt);
+			}
+			break;
 		case STT_INCLUDE:
 			INCLUDE_eval(ctx, stmt); break;
 		case STT_USING:
