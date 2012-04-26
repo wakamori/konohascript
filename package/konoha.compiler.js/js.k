@@ -47,10 +47,11 @@ konoha.printERR();
 </body>
 </html>
 """;
+String top_fname;
 if ($env.JS_USE_WORKER == "true") {
-    TOP = "(event)"
+    top_fname = "(event)"
 } else {
-    TOP = "konoha_main()"
+    top_fname = "konoha_main()"
 }
 //class CompilerOpt {
 //    int      indentLevel;
@@ -794,13 +795,13 @@ String myquote(Compiler asm, dynamic value) {
     }
 
     if ($env.JS_USE_WORKER == "true") {
-        res += "onmessage = function " + TOP + space + "{" + eol;
+        res += "onmessage = function " + top_fname + space + "{" + eol;
         res += indent + "var json" + space + "=" + space + "JSON.parse(event.data);" + eol;
         res += indent + "if (json.url != null) {" + eol;
         res += indent + indent + "globalFileURL = json.url;" + eol;
         res += indent + "}" + eol;
     } else {
-        res += "function " + TOP + space + "{" + eol;
+        res += "function " + top_fname + space + "{" + eol;
     }
     //res += indent + "if (json.type == 'start') {" + eol;
     //for (int i = 0; i < this.opt.errors.size; i++) {
