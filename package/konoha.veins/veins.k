@@ -923,7 +923,7 @@ class HttpResponseRedirect extends HttpResponse
     @Virtual HttpResponse hookHandler(HttpRequest req,
             Func<HttpRequest,String[]=>HttpResponse> callback, String[] args);
     @Virtual HttpResponse hookResponse(HttpRequest req, HttpResponse res);
-    //@Virtual HttpResponse hookException(HttpRequest req, Exception e);
+    @Virtual HttpResponse hookException(HttpRequest req, Exception e);
 }
 
 class Session
@@ -1070,6 +1070,13 @@ class SessionMiddleware extends Middleware
         req.session.store();
         return res;
     }
+
+    HttpResponse hookException(HttpRequest req, Exception e) {
+        if (isDebug()) {
+            ERR << "hook exception: " << req << e << EOL;
+        }
+        return null;
+    }
 }
 
 /* ======================================================================== */
@@ -1078,6 +1085,7 @@ HttpRequest g_req;
 HttpResponse g_res;
 Func<HttpRequest,String[]=>HttpResponse> g_handler;
 String[] g_args;
+Exception!! g_e;
 
 @Public String Wsgi.application(Map<String> environ,
         Func<String,Tuple<String,String>[]> start_response)
@@ -1093,48 +1101,63 @@ String[] g_args;
         }
         ERR << "path: " + path << EOL;
     }
-    String method = environ["REQUEST_METHOD"];
-    String query = environ["QUERY_STRING"];
-    String cookie = environ["Cookie"];
-    g_req = new HttpRequest(path, method, query, cookie);
-    g_res = null;
-    foreach (String middleware in middlewares) {
-        eval("g_res = " + middleware + ".hookRequest(g_req);");
-        if (g_res != null) {
-            break;
+    try {
+        String method = environ["REQUEST_METHOD"];
+        String query = environ["QUERY_STRING"];
+        String cookie = environ["Cookie"];
+        g_req = new HttpRequest(path, method, query, cookie);
+        g_res = null;
+        foreach (String middleware in middlewares) {
+            eval("g_res = " + middleware + ".hookRequest(g_req);");
+            if (g_res != null) {
+                break;
+            }
         }
-    }
-    if (g_res == null) {
-        foreach (Tuple<Regex,Func<HttpRequest,String[]=>HttpResponse>> t in Url.getPatterns()) {
-            if (path.search(t[0]) >= 0) {
-                g_args = path.split("/");
-                if (|g_args| > 0) {
-                    g_args.remove(0);
-                }
-                g_handler = t[1];
-                if (isDebug()) {
-                    ERR << "handler: " << g_handler << EOL;
-                    ERR << "args: [";
-                    foreach (String g_arg in g_args) {
-                        ERR << g_arg << ", ";
+        if (g_res == null) {
+            foreach (Tuple<Regex,Func<HttpRequest,String[]=>HttpResponse>> t in Url.getPatterns()) {
+                if (path.search(t[0]) >= 0) {
+                    g_args = path.split("/");
+                    if (|g_args| > 0) {
+                        g_args.remove(0);
                     }
-                    ERR << "]" << EOL;
+                    g_handler = t[1];
+                    if (isDebug()) {
+                        ERR << "handler: " << g_handler << EOL;
+                        ERR << "args: [";
+                        foreach (String g_arg in g_args) {
+                            ERR << g_arg << ", ";
+                        }
+                        ERR << "]" << EOL;
+                    }
+                    foreach (String middleware in middlewares) {
+                        eval("g_res = " + middleware + ".hookHandler(g_req, g_handler, g_args);");
+                    }
+                    if (g_res != null) {
+                        break;
+                    }
+                    g_res = g_handler(g_req, g_args);
+                    break;
                 }
-                foreach (String middleware in middlewares) {
-                    eval("g_res = " + middleware + ".hookHandler(g_req, g_handler, g_args);");
-                }
+            }
+        }
+        if (g_res != null) {
+            foreach (String middleware in middlewares) {
+                eval("g_res = " + middleware + ".hookResponse(g_req, g_res);");
                 if (g_res != null) {
                     break;
                 }
-                g_res = g_handler(g_req, g_args);
+            }
+        }
+    } catch (Exception!! e) {
+        g_e = e;
+        foreach (String middleware in middlewares) {
+            eval("g_res = " + middleware + ".hookException(g_req, g_e);");
+            if (g_res != null) {
                 break;
             }
         }
     }
     if (g_res != null) {
-        foreach (String middleware in middlewares) {
-            eval("g_res = " + middleware + ".hookResponse(g_req, g_res);");
-        }
         Tuple<String,String>[] headers = g_res.h;
         if (not "Content-Type" in? g_res.keys()) {
             headers.add(("Content-Type", "text/html; charset=UTF-8"));
