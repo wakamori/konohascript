@@ -926,7 +926,7 @@ class HttpResponseRedirect extends HttpResponse
     @Virtual HttpResponse hookHandler(HttpRequest req,
             Func<HttpRequest,String[]=>HttpResponse> callback, String[] args);
     @Virtual HttpResponse hookResponse(HttpRequest req, HttpResponse res);
-    @Virtual HttpResponse hookException(HttpRequest req, Exception e);
+    //@Virtual HttpResponse hookException(HttpRequest req, Exception e);
 }
 
 class Session
@@ -1074,44 +1074,44 @@ class SessionMiddleware extends Middleware
         return res;
     }
 
-    HttpResponse hookException(HttpRequest req, Exception e) {
-        if (isDebug()) {
-            ERR << "hook exception: " << req << e << EOL;
-        }
-        return null;
-    }
+    //HttpResponse hookException(HttpRequest req, Exception e) {
+    //    if (isDebug()) {
+    //        ERR << "hook exception: " << req << e << EOL;
+    //    }
+    //    return null;
+    //}
 }
 
-class LoggingMiddleware extends Middleware
-{
-    HttpResponse hookRequest(HttpRequest req) {
-        Map m = (to Map)req;
-        System.ntraceNotice("Veins:Request", m);
-        return null;
-    }
-
-    HttpResponse hookHandler(HttpRequest req,
-            Func<HttpRequest,String[]=>HttpResponse> callback, String[] args) {
-        Map m = {};
-        m["handler"] = callback.name;
-        m["args"] = args;
-        System.ntraceNotice("Veins:Handle", m);
-        return null;
-    }
-
-    HttpResponse hookResponse(HttpRequest req, HttpResponse res) {
-        Map m = (to Map)res;
-        System.ntraceNotice("Veins:Response", m);
-        return res;
-    }
-
-    HttpResponse hookException(HttpRequest req, Exception e) {
-        Map m = {};
-        m["message"] = e.toString();
-        System.ntraceFailed("Veins:Exception", m);
-        return null;
-    }
-}
+//class LoggingMiddleware extends Middleware
+//{
+//    HttpResponse hookRequest(HttpRequest req) {
+//        Map m = (to Map)req;
+//        System.ntraceNotice("Veins:Request", m);
+//        return null;
+//    }
+//
+//    HttpResponse hookHandler(HttpRequest req,
+//            Func<HttpRequest,String[]=>HttpResponse> callback, String[] args) {
+//        Map m = {};
+//        m["handler"] = callback.name;
+//        m["args"] = args;
+//        System.ntraceNotice("Veins:Handle", m);
+//        return null;
+//    }
+//
+//    HttpResponse hookResponse(HttpRequest req, HttpResponse res) {
+//        Map m = (to Map)res;
+//        System.ntraceNotice("Veins:Response", m);
+//        return res;
+//    }
+//
+//    HttpResponse hookException(HttpRequest req, Exception e) {
+//        Map m = {};
+//        m["message"] = e.toString();
+//        System.ntraceFailed("Veins:Exception", m);
+//        return null;
+//    }
+//}
 
 /* ======================================================================== */
 
@@ -1119,7 +1119,7 @@ HttpRequest g_req;
 HttpResponse g_res;
 Func<HttpRequest,String[]=>HttpResponse> g_handler;
 String[] g_args;
-Exception!! g_e;
+//Exception!! g_e;
 
 @Public String Wsgi.application(Map<String> environ,
         Func<String,Tuple<String,String>[]> start_response)
@@ -1135,7 +1135,7 @@ Exception!! g_e;
         }
         ERR << "path: " + path << EOL;
     }
-    try {
+    //try {
         String method = environ["REQUEST_METHOD"];
         String query = environ["QUERY_STRING"];
         String cookie = environ["Cookie"];
@@ -1179,15 +1179,15 @@ Exception!! g_e;
                 eval("g_res = " + middleware + ".hookResponse(g_req, g_res);");
             }
         }
-    } catch (Exception!! e) {
-        g_e = e;
-        foreach (String middleware in middlewares) {
-            eval("g_res = " + middleware + ".hookException(g_req, g_e);");
-            if (g_res != null) {
-                break;
-            }
-        }
-    }
+    //} catch (Exception!! e) {
+    //    g_e = e;
+    //    foreach (String middleware in middlewares) {
+    //        eval("g_res = " + middleware + ".hookException(g_req, g_e);");
+    //        if (g_res != null) {
+    //            break;
+    //        }
+    //    }
+    //}
     if (g_res != null) {
         Tuple<String,String>[] headers = g_res.h;
         if (not "Content-Type" in? g_res.keys()) {
