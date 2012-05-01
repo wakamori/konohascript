@@ -30,6 +30,7 @@ using konoha.json.*;
 using konoha.posix.*;
 using konoha.sql.*;
 using konoha.wsgi.*;
+using konoha.ntrace.*;
 
 /* ======================================================================== */
 /* Native methods. */
@@ -58,6 +59,8 @@ include "lib:gluelink";
 
 @Native @Public Path InputStream.getPath();
 @Native @Public Path OutputStream.getPath();
+@Native @Public String Func.getName();
+@Native @Public String Exception.toString();
 
 /* ======================================================================== */
 /* Utilities. */
@@ -1079,6 +1082,37 @@ class SessionMiddleware extends Middleware
     }
 }
 
+class LoggingMiddleware extends Middleware
+{
+    HttpResponse hookRequest(HttpRequest req) {
+        Map m = (to Map)req;
+        System.ntraceNotice("Veins:Request", m);
+        return null;
+    }
+
+    HttpResponse hookHandler(HttpRequest req,
+            Func<HttpRequest,String[]=>HttpResponse> callback, String[] args) {
+        Map m = {};
+        m["handler"] = callback.name;
+        m["args"] = args;
+        System.ntraceNotice("Veins:Handle", m);
+        return null;
+    }
+
+    HttpResponse hookResponse(HttpRequest req, HttpResponse res) {
+        Map m = (to Map)res;
+        System.ntraceNotice("Veins:Response", m);
+        return res;
+    }
+
+    HttpResponse hookException(HttpRequest req, Exception e) {
+        Map m = {};
+        m["message"] = e.toString();
+        System.ntraceFailed("Veins:Exception", m);
+        return null;
+    }
+}
+
 /* ======================================================================== */
 
 HttpRequest g_req;
@@ -1143,9 +1177,6 @@ Exception!! g_e;
         if (g_res != null) {
             foreach (String middleware in middlewares) {
                 eval("g_res = " + middleware + ".hookResponse(g_req, g_res);");
-                if (g_res != null) {
-                    break;
-                }
             }
         }
     } catch (Exception!! e) {

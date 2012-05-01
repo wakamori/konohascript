@@ -609,10 +609,11 @@ void *knh_dlsym(CTX ctx, void* handler, const char* symbol, const char *another,
 	}
 #else
 #endif
-	if(!isTest) {
-		int pe = (p == NULL) ? K_PERROR : K_OK;
-		KNH_NTRACE2(ctx, func, pe, KNH_LDATA(LOG_p("handler", handler), LOG_s("symbol", symbol)));
-	}
+	/* commented out not to pollute a log for Aspen */
+	//if(!isTest) {
+	//	int pe = (p == NULL) ? K_PERROR : K_OK;
+	//	KNH_NTRACE2(ctx, func, pe, KNH_LDATA(LOG_p("handler", handler), LOG_s("symbol", symbol)));
+	//}
 	return p;
 }
 

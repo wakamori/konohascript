@@ -289,6 +289,23 @@ KMETHOD OutputStream_getPath(CTX ctx, ksfp_t *sfp _RIX)
     RETURN_(w->path);
 }
 
+//## @Native @Public String Func.getName();
+KMETHOD Func_getName(CTX ctx, ksfp_t *sfp _RIX)
+{
+    kMethod *mtd = sfp[0].fo->mtd;
+    CWB_t cwbbuf, *cwb = CWB_open(ctx, &cwbbuf);
+    CWB_write(ctx, cwb, S_tobytes(ClassTBL((mtd)->cid)->sname));
+    CWB_putc(ctx, cwb, '.');
+    CWB_write(ctx, cwb, B(MN__((mtd)->mn)));
+    RETURN_(CWB_newString(ctx, cwb, 0));
+}
+
+//## @Native @Public String Exception.toString();
+KMETHOD Exception_toString(CTX ctx, ksfp_t *sfp _RIX)
+{
+    RETURN_(sfp[0].e->emsg);
+}
+
 /* ------------------------------------------------------------------------ */
 
 DEFAPI(void) defUuid(CTX ctx, kclass_t cid, kclassdef_t *cdef)
