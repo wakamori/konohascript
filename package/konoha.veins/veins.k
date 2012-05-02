@@ -322,9 +322,11 @@ class Model
             Map record = {};
             for (int i = 0; i < |r|; i++) {
                 String name = r.getName(i);
-                record[name] = r[name];
-                if (isDebug()) {
-                    ERR << "record[" << name << "]=" << r[name] << EOL;
+                if (r[name] != null) {
+                    record[name] = r[name];
+                    if (isDebug()) {
+                        ERR << "record[" << name << "]=" << r[name] << EOL;
+                    }
                 }
             }
             results.add(record);
@@ -591,11 +593,21 @@ class User
             "password": password.convert(to:SHA256)
         });
         if (|m| == 1) {
-            int id = (to int)m[0]["id"];
-            String perms = m[0]["permissions"];
-            String groups = m[0]["groups"];
-            String[] p = (perms == null) ? [] : perms.split(",");
-            String[] g = (groups == null) ? [] : groups.split(",");
+            int id = m[0]["id"];
+            String[] p;
+            String[] g;
+            try {
+                String perms = m[0]["permissions"];
+                p = perms.split(",");
+            } catch (Exception!! e) {
+                p = [];
+            }
+            try {
+                String groups = m[0]["groups"];
+                g = groups.split(",");
+            } catch (Exception!! e) {
+                g = [];
+            }
             return new User(id, name, p, g);
         }
         if (isDebug()) {
@@ -926,7 +938,7 @@ class HttpResponseRedirect extends HttpResponse
     @Virtual HttpResponse hookHandler(HttpRequest req,
             Func<HttpRequest,String[]=>HttpResponse> callback, String[] args);
     @Virtual HttpResponse hookResponse(HttpRequest req, HttpResponse res);
-    //@Virtual HttpResponse hookException(HttpRequest req, Exception e);
+    @Virtual HttpResponse hookException(HttpRequest req, Exception e);
 }
 
 class Session
@@ -1074,44 +1086,44 @@ class SessionMiddleware extends Middleware
         return res;
     }
 
-    //HttpResponse hookException(HttpRequest req, Exception e) {
-    //    if (isDebug()) {
-    //        ERR << "hook exception: " << req << e << EOL;
-    //    }
-    //    return null;
-    //}
+    HttpResponse hookException(HttpRequest req, Exception e) {
+        if (isDebug()) {
+            ERR << "hook exception: " << req << e << EOL;
+        }
+        return null;
+    }
 }
 
-//class LoggingMiddleware extends Middleware
-//{
-//    HttpResponse hookRequest(HttpRequest req) {
-//        Map m = (to Map)req;
-//        System.ntraceNotice("Veins:Request", m);
-//        return null;
-//    }
-//
-//    HttpResponse hookHandler(HttpRequest req,
-//            Func<HttpRequest,String[]=>HttpResponse> callback, String[] args) {
-//        Map m = {};
-//        m["handler"] = callback.name;
-//        m["args"] = args;
-//        System.ntraceNotice("Veins:Handle", m);
-//        return null;
-//    }
-//
-//    HttpResponse hookResponse(HttpRequest req, HttpResponse res) {
-//        Map m = (to Map)res;
-//        System.ntraceNotice("Veins:Response", m);
-//        return res;
-//    }
-//
-//    HttpResponse hookException(HttpRequest req, Exception e) {
-//        Map m = {};
-//        m["message"] = e.toString();
-//        System.ntraceFailed("Veins:Exception", m);
-//        return null;
-//    }
-//}
+class LoggingMiddleware extends Middleware
+{
+    HttpResponse hookRequest(HttpRequest req) {
+        Map m = (to Map)req;
+        System.ntraceNotice("Veins:Request", m);
+        return null;
+    }
+
+    HttpResponse hookHandler(HttpRequest req,
+            Func<HttpRequest,String[]=>HttpResponse> callback, String[] args) {
+        Map m = {};
+        m["handler"] = callback.name;
+        m["args"] = args;
+        System.ntraceNotice("Veins:Handle", m);
+        return null;
+    }
+
+    HttpResponse hookResponse(HttpRequest req, HttpResponse res) {
+        Map m = (to Map)res;
+        System.ntraceNotice("Veins:Response", m);
+        return res;
+    }
+
+    HttpResponse hookException(HttpRequest req, Exception e) {
+        Map m = {};
+        m["message"] = e.toString();
+        System.ntraceFailed("Veins:Exception", m);
+        return null;
+    }
+}
 
 /* ======================================================================== */
 
@@ -1119,7 +1131,7 @@ HttpRequest g_req;
 HttpResponse g_res;
 Func<HttpRequest,String[]=>HttpResponse> g_handler;
 String[] g_args;
-//Exception!! g_e;
+Exception!! g_e;
 
 @Public String Wsgi.application(Map<String> environ,
         Func<String,Tuple<String,String>[]> start_response)
@@ -1135,13 +1147,16 @@ String[] g_args;
         }
         ERR << "path: " + path << EOL;
     }
-    //try {
+    try {
         String method = environ["REQUEST_METHOD"];
         String query = environ["QUERY_STRING"];
         String cookie = environ["Cookie"];
         g_req = new HttpRequest(path, method, query, cookie);
         g_res = null;
         foreach (String middleware in middlewares) {
+            if (isDebug()) {
+                ERR << "call " << middleware + ".hookRequest()" << EOL;
+            }
             eval("g_res = " + middleware + ".hookRequest(g_req);");
             if (g_res != null) {
                 break;
@@ -1164,6 +1179,9 @@ String[] g_args;
                         ERR << "]" << EOL;
                     }
                     foreach (String middleware in middlewares) {
+                        if (isDebug()) {
+                            ERR << "call " << middleware + ".hookHandler()" << EOL;
+                        }
                         eval("g_res = " + middleware + ".hookHandler(g_req, g_handler, g_args);");
                     }
                     if (g_res != null) {
@@ -1176,18 +1194,24 @@ String[] g_args;
         }
         if (g_res != null) {
             foreach (String middleware in middlewares) {
+                if (isDebug()) {
+                    ERR << "call " << middleware + ".hookResponse()" << EOL;
+                }
                 eval("g_res = " + middleware + ".hookResponse(g_req, g_res);");
             }
         }
-    //} catch (Exception!! e) {
-    //    g_e = e;
-    //    foreach (String middleware in middlewares) {
-    //        eval("g_res = " + middleware + ".hookException(g_req, g_e);");
-    //        if (g_res != null) {
-    //            break;
-    //        }
-    //    }
-    //}
+    } catch (Exception!! e) {
+        g_e = e;
+        foreach (String middleware in middlewares) {
+            if (isDebug()) {
+                ERR << "call " << middleware + ".hookException()" << EOL;
+            }
+            eval("g_res = " + middleware + ".hookException(g_req, g_e);");
+            if (g_res != null) {
+                break;
+            }
+        }
+    }
     if (g_res != null) {
         Tuple<String,String>[] headers = g_res.h;
         if (not "Content-Type" in? g_res.keys()) {

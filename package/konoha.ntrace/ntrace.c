@@ -36,11 +36,8 @@
 extern "C" {
 #endif
 
-//@Native @Public System.ntrace_notice(String title, Map ldata);
-KMETHOD System_ntraceNotice (CTX ctx, ksfp_t *sfp _RIX)
+static void ntrace(CTX ctx, int log_level, const char *title, kMap *mdata)
 {
-	char *title = String_to(char *, sfp[1]);
-	kMap *mdata = sfp[2].m;
 	kmapptr_t *mapptr = mdata->mapptr;
 	knh_ldata_t log_buffer[64] = {0};
 	int logidx = 0;
@@ -73,7 +70,15 @@ KMETHOD System_ntraceNotice (CTX ctx, ksfp_t *sfp _RIX)
 		klr_setesp(ctx, lsfp+1);
 	}
 	log_buffer[logidx++] = (char*)LOG_END;
-	KNH_NTRACE(ctx, title, K_NOTICE, log_buffer);
+	KNH_NTRACE(ctx, title, log_level, log_buffer);
+}
+
+//@Native @Public System.ntrace_notice(String title, Map ldata);
+KMETHOD System_ntraceNotice (CTX ctx, ksfp_t *sfp _RIX)
+{
+	char *title = String_to(char *, sfp[1]);
+	kMap *mdata = sfp[2].m;
+	ntrace(ctx, K_NOTICE, title, mdata);
 	RETURNvoid_();
 }
 
@@ -82,39 +87,7 @@ KMETHOD System_ntraceOk (CTX ctx, ksfp_t *sfp _RIX)
 {
 	char *title = String_to(char *, sfp[1]);
 	kMap *mdata = sfp[2].m;
-	kmapptr_t *mapptr = mdata->mapptr;
-	knh_ldata_t log_buffer[64] = {0};
-	int logidx = 0;
-	// suppose p1 is "String"
-	ksfp_t *lsfp = ctx->esp;
-	knitr_t mitrbuf = K_NITR_INIT, *mitr = &mitrbuf;
-	klr_setesp(ctx, lsfp+1);
-	while(mdata->spi->next(ctx, mapptr, mitr, lsfp)) {
-		kString *key = lsfp[0].s;
-		kObject *value = knh_DictMap_getNULL(ctx, (kDictMap*)mdata, S_tobytes(key));
-		kclass_t cid = O_cid(value);
-		if (cid == CLASS_Int) {
-			knh_ldata_t item[] = {LOG_i(S_totext(key), N_toint(value))};
-			log_buffer[logidx++] = item[0];
-			log_buffer[logidx++] = item[1];
-			log_buffer[logidx++] = item[2];
-		} else if (cid == CLASS_Float) {
-			knh_ldata_t item[] = {LOG_f(S_totext(key), N_tofloat(value))};
-			log_buffer[logidx++] = item[0];
-			log_buffer[logidx++] = item[1];
-			log_buffer[logidx++] = item[2];
-		} else if (cid == CLASS_String) {
-			knh_ldata_t item[] = {LOG_s(S_totext(key), S_totext((kString*)value))};
-			log_buffer[logidx++] = item[0];
-			log_buffer[logidx++] = item[1];
-			log_buffer[logidx++] = item[2];
-		} else {
-			// cannot map...
-		}
-		klr_setesp(ctx, lsfp+1);
-	}
-	log_buffer[logidx++] = (char*)LOG_END;
-	KNH_NTRACE(ctx, title, K_OK, log_buffer);
+	ntrace(ctx, K_OK, title, mdata);
 	RETURNvoid_();
 }
 
@@ -123,39 +96,7 @@ KMETHOD System_ntraceFailed (CTX ctx, ksfp_t *sfp _RIX)
 {
 	char *title = String_to(char *, sfp[1]);
 	kMap *mdata = sfp[2].m;
-	kmapptr_t *mapptr = mdata->mapptr;
-	knh_ldata_t log_buffer[64] = {0};
-	int logidx = 0;
-	// suppose p1 is "String"
-	ksfp_t *lsfp = ctx->esp;
-	knitr_t mitrbuf = K_NITR_INIT, *mitr = &mitrbuf;
-	klr_setesp(ctx, lsfp+1);
-	while(mdata->spi->next(ctx, mapptr, mitr, lsfp)) {
-		kString *key = lsfp[0].s;
-		kObject *value = knh_DictMap_getNULL(ctx, (kDictMap*)mdata, S_tobytes(key));
-		kclass_t cid = O_cid(value);
-		if (cid == CLASS_Int) {
-			knh_ldata_t item[] = {LOG_i(S_totext(key), N_toint(value))};
-			log_buffer[logidx++] = item[0];
-			log_buffer[logidx++] = item[1];
-			log_buffer[logidx++] = item[2];
-		} else if (cid == CLASS_Float) {
-			knh_ldata_t item[] = {LOG_f(S_totext(key), N_tofloat(value))};
-			log_buffer[logidx++] = item[0];
-			log_buffer[logidx++] = item[1];
-			log_buffer[logidx++] = item[2];
-		} else if (cid == CLASS_String) {
-			knh_ldata_t item[] = {LOG_s(S_totext(key), S_totext((kString*)value))};
-			log_buffer[logidx++] = item[0];
-			log_buffer[logidx++] = item[1];
-			log_buffer[logidx++] = item[2];
-		} else {
-			// cannot map...
-		}
-		klr_setesp(ctx, lsfp+1);
-	}
-	log_buffer[logidx++] = (char*)LOG_END;
-	KNH_NTRACE(ctx, title, K_FAILED, log_buffer);
+	ntrace(ctx, K_FAILED, title, mdata);
 	RETURNvoid_();
 }
 
