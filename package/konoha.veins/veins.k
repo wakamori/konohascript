@@ -1009,6 +1009,10 @@ class Session
         j.delete(key);
     }
 
+    String toString() {
+        return j.stringify();
+    }
+
     void set(String key, dynamic val) {
         Class[] classes = [String, int, float];
         if (val.class in? classes) {
@@ -1097,7 +1101,16 @@ class SessionMiddleware extends Middleware
 class LoggingMiddleware extends Middleware
 {
     HttpResponse hookRequest(HttpRequest req) {
-        Map m = (to Map)req;
+        Map m = {};
+        m["path"] = req.path;
+        m["method"] = req.method;
+        try {
+            if (req.session != null) {
+                m["session"] = req.session.toString();
+            }
+        } catch (Exception!! e) {
+            m["session"] = "none";
+        }
         System.ntraceNotice("Veins:Request", m);
         return null;
     }
@@ -1106,13 +1119,25 @@ class LoggingMiddleware extends Middleware
             Func<HttpRequest,String[]=>HttpResponse> callback, String[] args) {
         Map m = {};
         m["handler"] = callback.name;
-        m["args"] = args;
-        System.ntraceNotice("Veins:Handle", m);
+        String argstr = "[";
+        foreach (String arg in args) {
+            argstr += arg + ",";
+        }
+        argstr += "]";
+        m["args"] = argstr;
+        System.ntraceNotice("Veins:Handler", m);
         return null;
     }
 
     HttpResponse hookResponse(HttpRequest req, HttpResponse res) {
-        Map m = (to Map)res;
+        Map m = {};
+        m["status"] = (res.status == 0) ? 200 : res.status;
+        foreach (String h in res.keys()) {
+            for (int i = 0; i < |res[h]|; i++) {
+                String key = "header:" + h + "+" + (to String)i;
+                m[key] = res[h][i];
+            }
+        }
         System.ntraceNotice("Veins:Response", m);
         return res;
     }

@@ -545,6 +545,19 @@ DEFAPI(void) constDir(CTX ctx, kclass_t cid, const knh_LoaderAPI_t *kapi)
 	kapi->loadClassIntConst(ctx, cid, DirConstInt);
 }
 
+static knh_IntData_t FileConstInt[] = {
+	{"LOCK_SH",    LOCK_SH},
+	{"LOCK_EX",    LOCK_EX},
+	{"LOCK_NB",    LOCK_NB},
+	{"LOCK_UN",    LOCK_UN},
+	{NULL}
+};
+
+DEFAPI(void) constFile(CTX ctx, kclass_t cid, const knh_LoaderAPI_t *kapi)
+{
+	kapi->loadClassIntConst(ctx, cid, FileConstInt);
+}
+
 /* ------------------------------------------------------------------------ */
 
 //## @Native @Throwable Dir System.openDir(Path path);
