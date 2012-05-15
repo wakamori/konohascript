@@ -580,6 +580,24 @@ class User
         return false;
     }
 
+    @Static int getUserId(String name) {
+        Model user = new Model("users", {
+            "id": AutoIncrementInt,
+            "name": String,
+            "password": String,
+            "permissions": String,
+            "groups": String
+        }, ["id"]);
+        Map[] m = user.get("id", {
+            "name": name
+        });
+        int id = -1;
+        if (|m| == 1) {
+            id = m[0]["id"];
+        }
+        return id;
+    }
+
     @Static User authenticate(String name, String password) {
         Model user = new Model("users", {
             "id": AutoIncrementInt,
@@ -588,7 +606,7 @@ class User
             "permissions": String,
             "groups": String
         }, ["id"]);
-        Map[] m = user.get("*", {
+        Map[] m = user.get("id,permissions,groups", {
             "name": name,
             "password": password.convert(to:SHA256)
         });
@@ -624,7 +642,7 @@ class User
             "permissions": String,
             "groups": String
         }, ["id"]);
-        Map[] m = user.get("*", {
+        Map[] m = user.get("id", {
             "name": name
         });
         if (|m| == 1) {
