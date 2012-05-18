@@ -24,3 +24,6 @@ js.math.Math.abs = function(f) {
 js.math.Math.fabs = function(f) {
     return Math.abs(f);
 }
+js.math.Math.random = function() {
+    return Math.random();
+}

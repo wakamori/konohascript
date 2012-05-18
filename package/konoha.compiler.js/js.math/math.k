@@ -25,3 +25,4 @@
 @Native @FastCall float Math.sinh(float x);
 @Native @FastCall float Math.cosh(float x);
 @Native @FastCall float Math.tanh(float x);
+@Native @FastCall float Math.random();

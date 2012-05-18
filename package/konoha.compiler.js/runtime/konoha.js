@@ -427,7 +427,10 @@ konoha.Int.prototype = new konoha.Number();
 konoha.Int.prototype.konohaclass = "konoha.Int";
 
 konoha.Int.random = function(arg) {
-    return Math.floor(Math.random() * arg);
+    if (arg != null) {
+        return Math.floor(Math.random() * arg);
+    }
+    return Math.floor(Math.random());
 }
 konoha.Int.format = function(i, format) {
     switch (format.rawptr) {
