@@ -1991,9 +1991,65 @@ void Compiler.asmIF(Stmt stmt, Stmt stmtCond, Stmt stmtThen, Stmt stmtElse) {
     }
 }
 void Compiler.asmSWITCH(Stmt stmt, Stmt stmtC, Stmt stmtBody) {
-    print "switch";
-    print stmtC;
-    print stmtBody;
+	int i = 0;
+	int espidx = stmtBody.getESPIDX(), bbsize = kfunc.bbs.size;
+	K_BasicBlock bbMerge = new K_BasicBlock(bbsize);
+	K_BasicBlock bbTrue  = new K_BasicBlock(bbsize+1);
+	K_BasicBlock bbNext  = new K_BasicBlock(bbsize+2);
+	kfunc.addBB(bbMerge, bbsize);
+
+	asm(stmtC, stmtC.toToken(), stmt.getS(2).toToken().getMn());
+
+    Array<K_PHI> regTablePhi = regTableToPHI(espidx, bbMerge);
+    Array<K_Inst> regTableCond = cloneRegTable();
+	kfunc.register_table = regTableCond;
+
+    kfunc.breakpoint.add(bbMerge);
+    kfunc.continuepoint.add(bbMerge);
+
+	while (stmtBody != NULL) {
+		if (stmtBody.getS(0).toToken().getTT() != Token.TT_ASIS) {
+			asm(stmtBody.getS(0), stmtBody.getS(0).toToken(), espidx);
+			K_Inst cond = kfunc.getKInst(espidx);
+			K_Inst jmp  = new K_COND(new K_CONDop(cond, bbTrue.bbidx, bbNext.bbidx), kfunc.curBB);
+			kfunc.curBB.insts.add(jmp);
+			kfunc.addBB(bbTrue, bbTrue.bbidx);
+			kfunc.addBB(bbNext, bbNext.bbidx);
+			if (stmtBody.getS(1).getStmtType() == Stmt.STT_DONE) {
+				kfunc.curBB = bbNext;
+				bbNext = new K_BasicBlock(kfunc.bbs.size);
+				stmtBody = stmtBody.next();
+			} else {
+				kfunc.curBB = bbTrue;
+				kfunc.register_table = cloneTable(regTablePhi);
+				asmBlock(stmtBody.getS(1));
+				stmtBody = stmtBody.next();
+				if (!kfunc.curBB.hasBrContinueBlock && !kfunc.curBB.hasBrBreakBlock 
+					&& !kfunc.curBB.hasReturn) {
+					jmp = new K_JMP(new K_JMPop(bbNext.bbidx, "next"));
+					kfunc.curBB.insts.add(jmp);
+				}
+				kfunc.curBB = bbNext;
+				bbTrue = new K_BasicBlock(kfunc.bbs.size);
+				bbNext = new K_BasicBlock(kfunc.bbs.size+1);
+			}
+		} else {
+			kfunc.register_table = cloneTable(regTablePhi);
+			asmBlock(stmtBody.getS(1));
+			break;
+		}
+	}
+	if (!kfunc.curBB.hasReturn) {
+		jmp = new K_JMP(new K_JMPop(bbMerge.bbidx, "merge"));
+		kfunc.curBB.insts.add(jmp);
+	}
+
+    kfunc.breakpoint.pop();
+    kfunc.continuepoint.pop();
+
+    Array<K_Inst> regTableMerge = createPhiArray(bbMerge, kfunc.register_table, kfunc.curBB, kfunc.getbreaklist, espidx);
+	kfunc.curBB = bbMerge;
+	kfunc.register_table = regTableMerge;
 }
 void Compiler.asmWHILE(Stmt stmt, Stmt stmtC, Stmt stmtBody) {
     if (DEBUG) {
