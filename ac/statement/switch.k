@@ -15,11 +15,10 @@ int fswitch0(int n) {
 	return n;
 }
 
-assure "StatementSwitch" {
-	assert fswitch0(0) == 1;
-	assert fswitch0(1) == 2;
-	assert fswitch0(2) == 2;
-}
+print fswitch0(0), 1;
+print fswitch0(1), 2;
+print fswitch0(2), 2;
+
 int fswitch1(int n, int m) {
 	switch (n) {
 		case 0:
@@ -43,16 +42,15 @@ int fswitch1(int n, int m) {
 	return n;
 }
 
-assure "StatementSwitch:Nested" {
-	assert fswitch1(0, 0) == 1;
-	assert fswitch1(1, 0) == 1;
-	assert fswitch1(1, 1) == 2;
-	assert fswitch1(1, 2) == 3;
-	assert fswitch1(2, 0) == 2;
-	assert fswitch1(3, 0) == 2;
-}
+print fswitch1(0, 0), 1;
+print fswitch1(1, 0), 1;
+print fswitch1(1, 1), 2;
+print fswitch1(1, 2), 3;
+print fswitch1(2, 0), 2;
+print fswitch1(3, 0), 2;
 
 ZERO = 0;
+
 int fswitch2(int n) {
 	switch (n) {
 		case ZERO:
@@ -71,12 +69,9 @@ int fswitch2(int n) {
 	return n;
 }
 
-assure "StatementSwitch:FALL_THROUGH" {
-	assert fswitch2(0) == 1;
-	assert fswitch2(1) == 3;
-	assert fswitch2(2) == 4;
-	assert fswitch2(3) == 10;
-	assert fswitch2(4) == 8;
-	assert fswitch2(5) == 5;
-}
-
+print fswitch2(0), 1;
+print fswitch2(1), 3;
+print fswitch2(2), 4;
+print fswitch2(3), 10;
+print fswitch2(4), 8;
+print fswitch2(5), 5;

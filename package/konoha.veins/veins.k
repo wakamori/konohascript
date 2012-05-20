@@ -324,10 +324,10 @@ class Model
                 String name = r.getName(i);
                 if (r[name] != null) {
                     record[name] = r[name];
-                    if (isDebug()) {
-                        ERR << "record[" << name << "]=" << r[name] << EOL;
-                    }
                 }
+            }
+            if (isDebug()) {
+                ERR << "record: " << record << EOL;
             }
             results.add(record);
         }
@@ -983,7 +983,7 @@ class Session
         }
         else {
             if (isDebug()) {
-                ERR << "load succeeded" << EOL;
+                ERR << "load failed" << EOL;
             }
         }
     }
@@ -1102,9 +1102,10 @@ class SessionMiddleware extends Middleware
             //    now.month -= 11;
             //}
             //res.setCookie("KSESSIONID", req.session.fname, now.toRFC1123());
-            res.setCookie("KSESSIONID", req.session.fname);
+            res.setCookie("KSESSIONID", req.session.origname);
         }
         req.session.store();
+        req.session = null;
         return res;
     }
 
@@ -1179,6 +1180,13 @@ Exception!! g_e;
 @Public String Wsgi.application(Map<String> environ,
         Func<String,Tuple<String,String>[]> start_response)
 {
+    // initialize global variables
+    g_req = null;
+    g_res = null;
+    g_handler = null;
+    g_args = null;
+    g_e = null;
+
     String[] middlewares = getMiddlewares();
     String path = environ["URI"];
     if (|path| >= 1 && path != "/") {
@@ -1195,7 +1203,6 @@ Exception!! g_e;
         String query = environ["QUERY_STRING"];
         String cookie = environ["Cookie"];
         g_req = new HttpRequest(path, method, query, cookie);
-        g_res = null;
         foreach (String middleware in middlewares) {
             if (isDebug()) {
                 ERR << "call " << middleware + ".hookRequest()" << EOL;
