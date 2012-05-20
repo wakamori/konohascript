@@ -446,8 +446,10 @@ String myquote(Compiler asm, dynamic value) {
         for (int j = 0; j < |bbs[i].movs|; j++) {
             bbs[i].movs[j].codegen(asm);
         }
-        bbs[i].insts[|bbs[i].insts|-1].codegen(asm);
-        if (bbs[i].insts[|bbs[i].insts|-1].class != K_RET) {
+		if (|bbs[i].insts| > 0) {
+			bbs[i].insts[|bbs[i].insts|-1].codegen(asm);
+		}
+        if (|bbs[i].insts| > 0 && bbs[i].insts[|bbs[i].insts|-1].class != K_RET) {
           if ($env.JS_USE_VALUEDUMP == "true") {
             asm.addSource("safepoint({");
             asm.incIndentLevel();
