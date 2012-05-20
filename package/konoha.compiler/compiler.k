@@ -2024,13 +2024,17 @@ void Compiler.asmSWITCH(Stmt stmt, Stmt stmtC, Stmt stmtBody) {
 				kfunc.register_table = cloneTable(regTablePhi);
 				asmBlock(stmtBody.getS(1));
 				stmtBody = stmtBody.next();
+				bbTrue = new K_BasicBlock(kfunc.bbs.size);
 				if (!kfunc.curBB.hasBrContinueBlock && !kfunc.curBB.hasBrBreakBlock 
 					&& !kfunc.curBB.hasReturn) {
-					jmp = new K_JMP(new K_JMPop(bbNext.bbidx, "next"));
+					if (stmtBody != NULL) {
+						jmp = new K_JMP(new K_JMPop(bbTrue.bbidx, "next"));
+					} else {
+						jmp = new K_JMP(new K_JMPop(bbNext.bbidx, "next"));
+					}
 					kfunc.curBB.insts.add(jmp);
 				}
 				kfunc.curBB = bbNext;
-				bbTrue = new K_BasicBlock(kfunc.bbs.size);
 				bbNext = new K_BasicBlock(kfunc.bbs.size+1);
 			}
 		} else {
