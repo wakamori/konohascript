@@ -94,7 +94,6 @@ konoha.OutputStream = function(isCwb) {
         konoha.OUT += (this.cwb);
         this.cwb = "";
         for (var i=0; i < arguments.length; i++) {
-            konoha.OUT += (arguments[i].rawptr);
             if (arguments[i].rawptr) {
                 konoha.OUT += (arguments[i].toString());
             } else {
