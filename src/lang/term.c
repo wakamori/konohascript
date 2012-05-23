@@ -701,11 +701,6 @@ static kbool_t Bytes_isTripleQuote(kBytes *ba, int quote)
 
 static void Bytes_addESC(CTX ctx, kBytes *ba, kInputStream *in, kline_t *ul)
 {
-	if (in->io2->buffer[in->io2->top] == 27 &&
-		in->io2->buffer[in->io2->top+1] == 40 &&
-		in->io2->buffer[in->io2->top+2] == 66) { /* Multi Byte Yen */
-		in->io2->top += 3;
-	}
 	int ch = knh_InputStream_getc(ctx, in);
 	if(ch == 'n') ch = '\n';
 	else if(ch == 't') ch = '\t';
@@ -761,6 +756,12 @@ static void Bytes_addQUOTE(CTX ctx, kBytes *ba, kInputStream *in, kline_t *ul, i
 				Bytes_addESC(ctx, ba, in, ul);
 				continue;
 			}
+			else if (in->io2->buffer[in->io2->top] == 194 &&
+					in->io2->buffer[in->io2->top+1] == 165) { /* Multi Byte Yen */
+				in->io2->top += 2;
+				Bytes_addESC(ctx, ba, in, ul);
+				continue;
+			}
 			if(ch == '\n') ul[0] += 1;
 			knh_Bytes_putc(ctx, ba, ch);
 		}
@@ -785,6 +786,11 @@ static int Term_addQUOTE(CTX ctx, kTerm *tkB, CWB_t *cwb, kInputStream *in, klin
 	if(ch != quote) {
 		if(ch == '\\' && !isRAW) {
 			Bytes_addESC(ctx, cwb->ba, in, ul);
+		}
+		else if (in->io2->buffer[in->io2->top] == 194 &&
+				in->io2->buffer[in->io2->top+1] == 165 && !isRAW) { /* Multi Byte Yen */
+			in->io2->top += 2;
+			Bytes_addESC(ctx, ba, in, ul);
 		}
 		else {
 			knh_Bytes_putc(ctx, cwb->ba, ch);
