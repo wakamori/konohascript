@@ -756,9 +756,9 @@ static void Bytes_addQUOTE(CTX ctx, kBytes *ba, kInputStream *in, kline_t *ul, i
 				Bytes_addESC(ctx, ba, in, ul);
 				continue;
 			}
-			else if (in->io2->buffer[in->io2->top] == 194 &&
-					in->io2->buffer[in->io2->top+1] == 165) { /* Multi Byte Yen */
-				in->io2->top += 2;
+			else if (ch == 194 && in->io2->buffer[in->io2->top] == 165) {
+				/* Multi Byte Yen */
+				in->io2->top += 1;
 				Bytes_addESC(ctx, ba, in, ul);
 				continue;
 			}
@@ -787,10 +787,10 @@ static int Term_addQUOTE(CTX ctx, kTerm *tkB, CWB_t *cwb, kInputStream *in, klin
 		if(ch == '\\' && !isRAW) {
 			Bytes_addESC(ctx, cwb->ba, in, ul);
 		}
-		else if (in->io2->buffer[in->io2->top] == 194 &&
-				in->io2->buffer[in->io2->top+1] == 165 && !isRAW) { /* Multi Byte Yen */
-			in->io2->top += 2;
-			Bytes_addESC(ctx, ba, in, ul);
+		else if (ch == 194 && in->io2->buffer[in->io2->top] == 165 &&
+				!isRAW) { /* Multi Byte Yen */
+			in->io2->top += 1;
+			Bytes_addESC(ctx, cwb->ba, in, ul);
 		}
 		else {
 			knh_Bytes_putc(ctx, cwb->ba, ch);
