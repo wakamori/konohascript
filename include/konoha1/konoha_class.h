@@ -891,7 +891,10 @@ struct kio_t {
 	};
 	void *handler2; // NULL
 	int  isRunning;
-	char  *buffer;
+	union {
+		char  *buffer;
+		unsigned char *ubuffer;
+	};
 	size_t bufsiz;
 	size_t top; size_t tail;
 	kbool_t    (*_read)(CTX, struct kio_t *);
