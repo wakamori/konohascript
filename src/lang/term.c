@@ -701,6 +701,11 @@ static kbool_t Bytes_isTripleQuote(kBytes *ba, int quote)
 
 static void Bytes_addESC(CTX ctx, kBytes *ba, kInputStream *in, kline_t *ul)
 {
+	if (in->io2->buffer[in->io2->top] == 27 &&
+		in->io2->buffer[in->io2->top+1] == 40 &&
+		in->io2->buffer[in->io2->top+2] == 66) { /* Multi Byte Yen */
+		in->io2->top += 3;
+	}
 	int ch = knh_InputStream_getc(ctx, in);
 	if(ch == 'n') ch = '\n';
 	else if(ch == 't') ch = '\t';
