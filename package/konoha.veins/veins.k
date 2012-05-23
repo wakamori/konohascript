@@ -1288,7 +1288,7 @@ Exception!! g_e;
     }
     if (not path.endsWith("/")) {
         String redirect_url = environ["URI"] + "/";
-        start_response("301 Moved Permanently", [
+        start_response("302 Found", [
             ("Content-Type", "text/html; charset=UTF-8"),
             ("Location", redirect_url)
         ]);
