@@ -2660,7 +2660,7 @@ void Compiler.asmCALL1(Stmt stmt, int espidx, Stmt expr1, Stmt stmtPost) {
     }
     asm(expr1, expr1.toToken(), espidx);
     //if (stmtPost.toToken() == null) { /* IS_Stmt(DP(stmt)->stmtPOST) */
-    if (stmtPost.getClass() == Stmt) { /* IS_Stmt(DP(stmt)->stmtPOST) */
+    if (stmtPost.getClass() == StmtExpr) { /* IS_StmtExpr(DP(stmt)->stmtPOST) */
         stmtPost.setESPIDX(espidx + 1);
         asmEXPR(stmtPost, espidx + 1);
     }
