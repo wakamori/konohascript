@@ -601,9 +601,9 @@ class K_Function {
     }
 
     Boolean checkBaseType(Class c1, Class c2) {
-		if (c1 == null || c2 == null) {
-			return true;
-		}
+        if (c2 == null) {
+            return true;
+        }
         String t1 = (to String) c1;
         String t2 = (to String) c2;
         String[] types = ["konoha.Array", "konoha.Map", "konoha.Array", "konoha.Func", "konoha.Iterator"];
