@@ -2469,6 +2469,13 @@ static void _EXPR1(CTX ctx, kStmtExpr *stmt, tkitr_t *itr)
 					knh_Stmt_add(ctx, stmt, new_TermMN(ctx, MN_newMAP));
 					_DICT(ctx, stmt, new_TermCID(ctx, CLASS_Map), tkCUR);
 				}
+				else if (knh_bytes_index(t, ',') != -1) { /* @CODE: {} */
+					Term_toBRACE(ctx, tkCUR, 1/*isEXPANDING*/);
+					tkitr_t pbuf, *pitr = ITR_new(tkCUR, &pbuf);
+					kclass_t cid = CLASS_Array;
+					stmt = new_StmtREUSE(ctx, stmt, STT_NEW);
+					_ARRAY(ctx, stmt, MN_newLIST, cid, pitr);
+				}
 				else {
 					stmt = new_StmtREUSE(ctx, stmt, STT_FUNCTION);
 					_ASIS(ctx, stmt, itr);
