@@ -287,6 +287,7 @@ konoha.Array.prototype.set4 = function(x, y, z, w, v) {
 konoha.Array.prototype.getSize = function() {
     return this.capacity;
 }
+konoha.Array.prototype.getLength = konoha.Array.prototype.getSize;
 konoha.Array.prototype.add = function(v) {
     this.capacity++;
     this.rawptr.push(v);
@@ -398,6 +399,7 @@ konoha.String.prototype.replace = function(source, target) {
 konoha.String.prototype.getSize = function() {
     return this.rawptr.length;
 }
+konoha.String.prototype.getLength = konoha.String.prototype.getSize;
 
 konoha.String.prototype.konohaclass = "konoha.String";
 
