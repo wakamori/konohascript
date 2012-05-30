@@ -591,6 +591,7 @@ kInt* new_Int_(CTX ctx, kclass_t cid, kint_t value);
 kFloat* new_Float_(CTX ctx, kclass_t cid, kfloat_t value);
 Object* new_Boxing(CTX ctx, ksfp_t *sfp, const knh_ClassTBL_t *ct);
 KMETHOD Bytes_getSize(CTX ctx, ksfp_t *sfp _RIX);
+KMETHOD Bytes_getLength(CTX ctx, ksfp_t *sfp _RIX);
 KMETHOD Tuple_getSize(CTX ctx, ksfp_t *sfp _RIX);
 KMETHOD Map_getSize(CTX ctx, ksfp_t *sfp _RIX);
 void knh_DataMap_log(CTX ctx, kDictMap *conf, ktype_t type, const char *key);

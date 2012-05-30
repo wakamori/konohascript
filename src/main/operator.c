@@ -2712,6 +2712,16 @@ KMETHOD Bytes_getSize(CTX ctx, ksfp_t *sfp _RIX)
 }
 
 /* ------------------------------------------------------------------------ */
+//## method Int Bytes.getLength();
+//## method Int Array.getLength();
+
+KMETHOD Bytes_getLength(CTX ctx, ksfp_t *sfp _RIX)
+{
+	//fprintf(stderr, "** rix=%ld sfp[K_RIX]=%p\n", rix, sfp + rix);
+	RETURNi_((sfp[0].ba)->bu.len);
+}
+
+/* ------------------------------------------------------------------------ */
 //## method Int Tuple.getSize();
 
 KMETHOD Tuple_getSize(CTX ctx, ksfp_t *sfp _RIX)
@@ -2723,6 +2733,18 @@ KMETHOD Tuple_getSize(CTX ctx, ksfp_t *sfp _RIX)
 //## method @Const Int String.getSize();
 
 static KMETHOD String_getSize(CTX ctx, ksfp_t *sfp _RIX)
+{
+	size_t size = IS_bString(sfp[0].s) ? S_size(sfp[0].s) : 0;
+	if(!String_isASCII(sfp[0].s)) {
+		size = knh_bytes_mlen(S_tobytes(sfp[0].s));
+	}
+	RETURNi_(size);
+}
+
+/* ------------------------------------------------------------------------ */
+//## method @Const Int String.getLength();
+
+static KMETHOD String_getLength(CTX ctx, ksfp_t *sfp _RIX)
 {
 	size_t size = IS_bString(sfp[0].s) ? S_size(sfp[0].s) : 0;
 	if(!String_isASCII(sfp[0].s)) {

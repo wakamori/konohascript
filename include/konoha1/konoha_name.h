@@ -1047,6 +1047,7 @@
 #define MN_get3         MN_toGETTER(FN_3)
 #define MN_get2         MN_toGETTER(FN_2)
 #define MN_flush        FN_flush
+#define MN_getLength    MN_toGETTER(FN_length)
 #define MN_send         FN_send
 #define MN_getSize      MN_toGETTER(FN_size)
 #define MN_main         FN_main
