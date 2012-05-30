@@ -18,6 +18,7 @@ extern "C" {
 
 #define MN_newLIST   MN_new__LIST
 #define MN_newARRAY  MN_new__ARRAY
+#define MN_newARRAY2 MN_new__ARRAY2
 #define MN_newTUPLE  MN_new__TUPLE
 #define MN_newMAP    MN_new__MAP
 

@@ -219,6 +219,7 @@ konoha.Array.prototype.new_ARRAY = function() {
     }
     return this;
 }
+konoha.Array.prototype.new_ARRAY2 = konoha.Array.prototype.new_ARRAY;
 konoha.Array.prototype.new_LIST = function() {
     this.capacity = arguments.length;
     this.rawptr = new Array(this.capacity);

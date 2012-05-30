@@ -2945,7 +2945,7 @@ static kTerm* NEW_typing(CTX ctx, kStmtExpr *stmt, kclass_t reqt)
 	}
 	DBG_P("new_cid=%s", CLASS__(new_cid));
 
-	if(mn == MN_newARRAY) {  /* new C [10, 10] */
+	if(mn == MN_newARRAY || mn == MN_newARRAY2) {  /* new C [10, 10] or new C[10][10] */
 		size_t i;
 		for(i = 2; i < DP(stmt)->size; i++) {
 			TYPING_TypedExpr(ctx, stmt, i, TYPE_Int);

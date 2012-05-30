@@ -1484,6 +1484,23 @@ static KMETHOD Array_newARRAY(CTX ctx, ksfp_t *sfp _RIX)
 }
 
 /* ------------------------------------------------------------------------ */
+//## @Hidden method This Array.new:ARRAY2(Int x, Int y);
+
+static KMETHOD Array_newARRAY2(CTX ctx, ksfp_t *sfp _RIX)
+{
+	kArray *a = sfp[0].a;
+	kint_t x = sfp[1].ivalue;
+	kint_t y = sfp[2].ivalue;
+	size_t i;
+	for(i = 0; i < x; i++) {
+		kArray *a2 = new_Array(ctx, ClassTBL(O_p1(a))->p1, y);
+		a2->size = y;
+		knh_Array_add(ctx, a, a2);
+	}
+	RETURN_(a);
+}
+
+/* ------------------------------------------------------------------------ */
 //## @Hidden method This Array.new:LIST(T1 value, ...);
 
 static KMETHOD Array_newLIST(CTX ctx, ksfp_t *sfp _RIX)

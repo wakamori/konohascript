@@ -2622,6 +2622,21 @@ static void _EXPRCALL(CTX ctx, kStmtExpr *stmt, tkitr_t *itr)
 				TT_(itr->ts[itr->c]) = TT_PARENTHESIS;
 				break;
 			}
+			if(ITR_isT(itr, isTYPE) && ITR_isN(itr, +1, TT_BRANCET) && ITR_isN(itr, +2, TT_BRANCET)) {
+				if(ITR_isN(itr, +3, TT_BRANCET)) {
+					kStmtExproERR(ctx, stmt, ERROR_Undefined(ctx, "class for new", CLASS_unknown, ITR_nextTK(itr)/*tkCUR*/));
+					break;
+				}
+				kTerm *tkC = ITR_nextTK(itr);
+				TT_(tkCUR) = TT_MN; /* new C[10][10] */
+				(tkCUR)->mn = MN_newARRAY2;
+				knh_Stmt_add(ctx, stmt, new_TermPTYPE(ctx, CLASS_Array, new_TermPTYPE(ctx, CLASS_Array, tkC)));
+				tkitr_t pbuf, *pitr = ITR_new(ITR_nextTK(itr), &pbuf);
+				_EXPRs(ctx, stmt, pitr);
+				pitr = ITR_new(ITR_nextTK(itr), &pbuf);
+				_EXPRs(ctx, stmt, pitr);
+				break;
+			}
 			if(ITR_isT(itr, isTYPE) && ITR_isN(itr, +1, TT_BRANCET)) {
 				kTerm *tkC = ITR_nextTK(itr);
 				TT_(tkCUR) = TT_MN; /* new C[10] */
