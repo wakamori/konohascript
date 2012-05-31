@@ -2384,6 +2384,16 @@ static void _PARAM(CTX ctx, kStmtExpr *stmt, tkitr_t *itr);
 static void _PARAMs(CTX ctx, kStmtExpr *stmt, tkitr_t *itr);
 static void _STMT1(CTX ctx, kStmtExpr *stmt, tkitr_t *itr);
 
+static inline kbool_t knh_bytes_isnumber(kbytes_t v)
+{
+	size_t i;
+	for(i = 0; i < v.len; i++) {
+		if(v.utext[i] == ' ') continue;
+		if(isdigit(v.utext[i]) == 0 && v.utext[i] != '.') return 0;
+	}
+	return 1;
+}
+
 static void _EXPR1(CTX ctx, kStmtExpr *stmt, tkitr_t *itr)
 {
 	//if(ITR_hasNext(itr)) {
@@ -2451,7 +2461,7 @@ static void _EXPR1(CTX ctx, kStmtExpr *stmt, tkitr_t *itr)
 					knh_Stmt_add(ctx, stmt, new_TermMN(ctx, MN_newMAP));
 					_DICT(ctx, stmt, new_TermCID(ctx, CLASS_Map), tkCUR);
 				}
-				else if (knh_bytes_index(t, ',') != -1) { /* @CODE: {} */
+				else if (knh_bytes_index(t, ',') != -1 || knh_bytes_isnumber(t)) { /* @CODE: {} */
 					Term_toBRACE(ctx, tkCUR, 1/*isEXPANDING*/);
 					tkitr_t pbuf, *pitr = ITR_new(tkCUR, &pbuf);
 					kclass_t cid = CLASS_Array;
