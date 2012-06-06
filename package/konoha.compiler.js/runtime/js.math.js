@@ -34,10 +34,10 @@ js.math.Math.tan = function(f) {
     return Math.tan(f);
 }
 js.math.Math.toDegrees = function(f) {
-	return f * (Math.PI / 180);
+	return f * (180 / Math.PI);
 }
 js.math.Math.toRadians = function(f) {
-	return f * (180 / Math.PI);
+	return f * (Math.PI / 180);
 }
 js.math.Math.exp = function(f) {
 	return Math.exp(f);

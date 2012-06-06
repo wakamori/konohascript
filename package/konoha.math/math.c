@@ -189,6 +189,21 @@ KMETHOD Math_tanh(CTX ctx, ksfp_t *sfp _RIX)
 	RETURNf_(tanh(Float_to(double, sfp[1])));
 }
 
+KMETHOD Math_random(CTX ctx, ksfp_t *sfp _RIX)
+{
+	RETURNf_(kfloat_rand());
+}
+
+KMETHOD Math_toDegrees(CTX ctx, ksfp_t *sfp _RIX)
+{
+	RETURNf_(Float_to(double, sfp[1]) * (180 / M_PI));
+}
+
+KMETHOD Math_toRadians(CTX ctx, ksfp_t *sfp _RIX)
+{
+	RETURNf_(Float_to(double, sfp[1]) * (M_PI / 180));
+}
+
 #if defined(K_USING_WIN32_)
 KMETHOD Math_asinh(CTX ctx, ksfp_t *sfp _RIX)
 {

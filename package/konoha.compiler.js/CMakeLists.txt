@@ -8,7 +8,7 @@ add_subdirectory(js.websocket)
 project(compiler.js)
 set(PACKAGE_SCRIPT_CODE js.k)
 set(PACKAGE_RUNTIME_DIR runtime)
-set(PACKAGE_RUNTIME_CODE runtime/konoha.js runtime/js.js runtime/js.dom.js runtime/js.jquery.js runtime/js.math.js)
+set(PACKAGE_RUNTIME_CODE runtime/konoha.js runtime/js.js runtime/js.dom.js runtime/js.jquery.js runtime/js.math.js runtime/konoha.math.js)
 
 if(LIB_V8_DIR)
 LINK_DIRECTORIES(${LIB_V8_DIR})
