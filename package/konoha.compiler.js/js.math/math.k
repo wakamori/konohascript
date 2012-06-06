@@ -26,3 +26,7 @@
 @Native @FastCall float Math.cosh(float x);
 @Native @FastCall float Math.tanh(float x);
 @Native @FastCall float Math.random();
+@Native @FastCall float Math.toDegrees(float x);
+@Native @FastCall float Math.toRadians(float x);
+@Native @FastCall float Math.getE();
+@Native @FastCall float Math.getPI();
