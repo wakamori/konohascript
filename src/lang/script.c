@@ -318,7 +318,7 @@ static void INCLUDE_file(CTX ctx, kStmtExpr *stmt)
 static void INCLUDE_eval(CTX ctx, kStmtExpr *stmt)
 {
 	kTerm *tkPATH = tkNN(stmt, 0);
-	if(IS_bString(tkPATH->text) && knh_bytes_startsWith_(S_tobytes(tkPATH->text), STEXT("lib:"))) {
+	if(tkPATH->text != NULL && IS_bString(tkPATH->text) && knh_bytes_startsWith_(S_tobytes(tkPATH->text), STEXT("lib:"))) {
 		INCLUDE_ffilink(ctx, stmt, K_GMANS, S_tobytes(tkPATH->text));
 	}
 	else {

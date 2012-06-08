@@ -2564,8 +2564,10 @@ static void _CALLPARAM(CTX ctx, kStmtExpr *stmt, tkitr_t *itr)
 			_EXPRs(ctx, stmt, pitr);
 		}
 		else if(ITR_hasNext(itr)) { /* CODE: f n + 1 =>  f (n+1) */
-			Term_setGetter(tkNN(stmt, 0), 0);  // name.f a
-			_EXPR(ctx, stmt, itr);
+			if(tkNN(stmt, 0) != NULL) {
+				Term_setGetter(tkNN(stmt, 0), 0);  // name.f a
+				_EXPR(ctx, stmt, itr);
+			}
 			return;
 		}
 	}
@@ -2904,7 +2906,7 @@ static kbool_t Stmt_checkDepth(kStmtExpr *stmt, int depth, int max)
 	}
 	for(i = 0; i < DP(stmt)->size; i++) {
 		kStmtExpr *stmt2 = stmtNN(stmt, i);
-		if(IS_StmtExpr(stmt2)) {
+		if(stmt2 != NULL && IS_StmtExpr(stmt2)) {
 			//DBG_P("CHILD %p stmt=%s", stmt2, TT__(STT_(stmt2)));
 			if(Stmt_checkDepth(stmt2, depth+1, max)) return 1;
 		}
