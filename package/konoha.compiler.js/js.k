@@ -395,7 +395,9 @@ String myquote(Compiler asm, dynamic value) {
             asm.opt.topLevelFunctionList.add(asm.opt.obfuscatedMethodName);
             asm.opt.mtdName = asm.opt.obfuscatedMethodName;
         } else {
-            fncdef += "function " + asm.opt.obfuscatedMethodName + "(";
+            fncdef += thisclass + "." + asm.opt.obfuscatedMethodName + " = ";
+            fncdef += "function(";
+            //fncdef += "function " + asm.opt.obfuscatedMethodName + "(";
             asm.opt.mtdName = asm.opt.obfuscatedMethodName;
         }
     } else {
