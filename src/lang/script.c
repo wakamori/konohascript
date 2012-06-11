@@ -896,6 +896,7 @@ static void StmtITR_eval(CTX ctx, kStmtExpr *stmtITR)
 		case STT_INCLUDE:
 			INCLUDE_eval(ctx, stmt); break;
 		case STT_USING:
+		case STT_IMPORT:
 			USING_eval(ctx, stmt); break;
 		case STT_CLASS:
 			CLASS_decl(ctx, stmt); break;

@@ -12,6 +12,7 @@ include   _NOCHECK
 allow     _CNAME _MEXPR
 deny      _CNAME _MEXPR
 using     _NOCHECK
+import    _NOCHECK
 class     _CNAME _PARAM _CNAME _NOCHECK _
 format    _NOCHECK
 return    _EXPR
@@ -75,6 +76,7 @@ include   0     _FILE
 allow     0     _CNAME _MEXPR
 deny      0     _CNAME _MEXPR
 using     0     _FUTURE
+import    0     _FUTURE
 class     0     _CLASS
 return    0     _EXPR
 yield     0     _EXPR

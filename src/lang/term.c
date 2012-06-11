@@ -3617,6 +3617,7 @@ static kStmtExpr *new_StmtSTMT1(CTX ctx, tkitr_t *itr)
 		CASE_(NAMESPACE, +1, _STMT1);
 		CASE_L(INCLUDE, +1, 1/*;*/, _EXPRs);
 		CASE_L(USING, +1, 1/*;*/, _USING);
+		CASE_L(IMPORT, +1, 1/*;*/, _USING);
 		CASE_(CLASS, +1, _CLASS);
 		CASE_L(BREAK, +1, 1/*;*/, _LABEL);
 		CASE_L(CONTINUE, +1, 1/*;*/, _LABEL);
