@@ -3193,7 +3193,7 @@ static const kloaddata_t CParamData0[] = {
 	DATA_CPARAM, CLASS_Range,     _D("konoha.Range<dynamic>"), _D("Range<dynamic>"), 1, 0, TYPE_dyn, FN_V,
 	DATA_CPARAM, CLASS_Array,     _D("konoha.Array<dynamic>"), _D("dynamic" PTYPE_Array), 1, 0, TYPE_dyn, FN_V,
 	DATA_CPARAM, CLASS_Map,       _D("konoha.Map<konoha.String,dynamic>"), _D("Map<String,dynamic>"), 2, 0, TYPE_String, FN_K, TYPE_dyn, FN_V,
-	DATA_CPARAM, CLASS_Tuple,     _D("konoha.Map<konoha.String,dynamic>"), _D("Tuple<String,dynamic>"), 2, 0, TYPE_String, FN_K, TYPE_dyn, FN_V,
+	DATA_CPARAM, CLASS_Tuple,     _D("konoha.Tuple<konoha.String,dynamic>"), _D("Tuple<String,dynamic>"), 2, 0, TYPE_String, FN_K, TYPE_dyn, FN_V,
 	DATA_CPARAM, CLASS_Func,      _D("konoha.Func<void>"), _D("Func<void>"), 0, 0,
 	DATA_CPARAM, CLASS_Thunk,     _D("konoha.Thunk<dynamic>"), _D("Thunk<dynamic>"), 1, 0, TYPE_dyn, FN_V,
 	DATA_CPARAM, CLASS_Immutable, _D("konoha.Immutable<dynamic>"), _D("dynamic" PTYPE_Immutable), 1, 0, TYPE_dyn, FN_V,
