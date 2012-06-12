@@ -151,7 +151,12 @@ static kTerm* TERROR_Stmt(CTX ctx, kStmtExpr *stmt, size_t n, ktype_t reqt)
 	case STT_OPR:
 	{
 		kMethod *mtd = (tkNN(stmt, 0))->mtd;
-		tkERR = TypeErrorCallParam(ctx, n-1, mtd, reqt, type);
+		if(IS_NULL(mtd)) {
+			tkERR = TypeErrorStmtNN(ctx, stmt, n, reqt, type);
+		}
+		else {
+			tkERR = TypeErrorCallParam(ctx, n-1, mtd, reqt, type);
+		}
 		break;
 	}
 	case STT_LET:
@@ -2191,6 +2196,12 @@ static kTerm* CALL_toCONST(CTX ctx, kStmtExpr *stmt, kMethod *mtd)
 			KNH_SETv(ctx, lsfp[thisidx+(i-1)].o, (tk)->data);
 			unboxSFP(ctx, &lsfp[thisidx+(i-1)]);
 		}
+		if(mtd->mn == MN_opDIV || mtd->mn == MN_opMOD) {
+			if(lsfp[thisidx+1].ivalue == 0) {
+				lsfp[thisidx+1].ivalue = 1;
+				WARN_DividedByZero(ctx);
+			}
+		}
 		KNH_SCALL(ctx, lsfp, rtnidx, mtd, (size - 2));
 		knh_boxing(ctx, &lsfp[rtnidx], stmt->type);
 		rvalue = ((DP(mtd)->mp)->rsize == 0) ? knh_Stmt_done(ctx, stmt) : Term_setCONST(ctx, tkNN(stmt, 0), lsfp[0].o);
@@ -4222,7 +4233,8 @@ static kTerm* METHOD_typing(CTX ctx, kStmtExpr *stmtM)
 L_CheckScope:;
 	if(!knh_NameSpace_isInsideScope(ctx, K_GMANS, mtd_cid)) {
 		if(!knh_StmtMETA_is(ctx, stmtM, "Public")) {
-			flag |= FLAG_Method_Private;
+			WARN_Ignored(ctx, "annotation", CLASS_unknown, S_totext(tkNN(stmtM, 0)->text));
+			//flag |= FLAG_Method_Private;
 		}
 	}
 	if(mtd == NULL) {  // newly defined method

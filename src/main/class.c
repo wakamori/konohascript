@@ -1441,13 +1441,14 @@ kMethod *knh_ClassTBL_getFmt(CTX ctx, const knh_ClassTBL_t *t, kmethodn_t mn0)
 void knh_NameSpace_addMethod(CTX ctx, kclass_t mtd_cid, kMethod *mtd)
 {
 	DBG_ASSERT(mtd_cid == mtd->cid);
-	if(Method_isPrivate(mtd)) {
-		KNH_TODO("Private Method");
-	}
-	else {
+	DBG_P("** TODO: Ignored Private Annotation **");
+	//if(Method_isPrivate(mtd)) {
+	//	KNH_TODO("Private Method");
+	//}
+	//else {
 		//DBG_P("mtd=%p, %s.%s", mtd, CLASS__(mtd_cid), MN__(mtd->mn));
 		knh_ClassTBL_addMethod(ctx, ClassTBL(mtd_cid), mtd, 0);
-	}
+	//}
 }
 
 kMethod* knh_NameSpace_getMethodNULL(CTX ctx, kNameSpace *ns, kclass_t cid, kmethodn_t mn)

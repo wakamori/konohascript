@@ -2182,7 +2182,7 @@ static int ITR_indexOPR(CTX ctx, tkitr_t *itr, int offset)
 		kterm_t tt = TT_(ts[i]);
 		int p = TT_priority(tt);
 		if(p == 0) {
-			DBG_P("p=%d, TT=%s", TT__(tt));
+			DBG_P("p=%d, TT=%s", p, TT__(tt));
 			KNH_SETv(ctx, ts[i], ERROR_Term(ctx, ts[i] K_TRACEPOINT));
 			itr->c = i;
 			return i;
@@ -3183,6 +3183,8 @@ static void _LABEL(CTX ctx, kStmtExpr *stmt, tkitr_t *itr)
 static int isEVENT(kTerm *tk)
 {
 	if(Term_isExceptionType(tk)) return 1;
+	kbytes_t t = S_tobytes(tk->text);
+	if(ISB(t, "Exception")) return 1;
 	return 0;
 }
 

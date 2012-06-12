@@ -809,7 +809,8 @@ static knh_ClassTBL_t *CLASSNAME_decl(CTX ctx, kStmtExpr *stmt, kTerm *tkC, kTer
 		}
 		else {
 			ct->supcid = knh_Term_cid(ctx, tkE, CLASS_unknown);
-			if(ct->supcid == CLASS_unknown) {
+			if(ct->supcid == CLASS_unknown ||
+					ct->supcid == knh_Term_cid(ctx, tkC, CLASS_unknown)) {
 				kStmtExproERR(ctx, stmt, ERROR_Undefined(ctx, "class", ct->supcid, tkE));
 				return ct;
 			}

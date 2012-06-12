@@ -97,6 +97,7 @@ class Compiler {
     K_Inst cwb;
     Map<String, K_Function[]> compiled_methods;
     CompilerOpt opt;
+    //Stmt finallyStmt;
 
     Map<String, Type> user_type;
     Compiler() {
@@ -1339,23 +1340,41 @@ class K_NEXT extends K_Inst {
     }
 }
 
+class K_TRYop extends K_Opcode {
+    int jmpidx;
+    K_TRYop (int jmpidx) {
+        this.jmpidx = jmpidx;
+    }
+}
+
 class K_TRY extends K_Inst {
-    K_TRY() {
+    K_TRYop op;
+    K_TRY(K_TRYop op) {
         init_kvalue(null);
+        this.op = op;
     }
     @Override String dump() {
-        throw new Exception();
-        return null;
+        String res = "\t_ = try bb" + op.jmpidx;
+        return res;
+    }
+}
+
+class K_CATCHop extends K_Opcode {
+    int jmpidx;
+    K_CATCHop (int jmpidx) {
+        this.jmpidx = jmpidx;
     }
 }
 
 class K_CATCH extends K_Inst {
-    K_CATCH() {
+    K_CATCHop op;
+    K_CATCH(K_CATCHop op) {
         init_kvalue(null);
+        this.op = op;
     }
     @Override String dump() {
-        throw new Exception();
-        return null;
+        String res = "\t_ = catch bb" + op.jmpidx;
+        return res;
     }
 }
 
@@ -2010,7 +2029,7 @@ void Compiler.asmSWITCH(Stmt stmt, Stmt stmtC, Stmt stmtBody) {
     kfunc.breakpoint.add(bbMerge);
     kfunc.continuepoint.add(bbMerge);
 
-	while (stmtBody != NULL) {
+	while (stmtBody != NULL && stmtBody.getStmtSize() > 0) {
 		if (stmtBody.getS(0).toToken().getTT() != Token.TT_ASIS) {
 			asm(stmtBody.getS(0), stmtBody.getS(0).toToken(), espidx);
 			K_Inst cond = kfunc.getKInst(espidx);
@@ -2306,22 +2325,78 @@ void Compiler.asmFOREACH(Stmt stmt, Token tkVar, Stmt stmtInit, Stmt stmtItr, St
 }
 
 void Compiler.asmBREAK(Stmt stmt, Stmt stmtLabel) {
+    if (kfunc.breakpoint.size == 0) {
+        return;
+    }
     kfunc.breakList.add((kfunc.curBB, cloneRegTable()));
     K_Inst jmp = new K_JMP(new K_JMPop(kfunc.breakpoint[|kfunc.breakpoint|-1].bbidx, "break"));
     kfunc.curBB.insts.add(jmp);
     kfunc.curBB.hasBrBreakBlock = true;
 }
 void Compiler.asmCONTINUE(Stmt stmt, Stmt stmtLabel) {
+    if (kfunc.continuepoint.size == 0) {
+        return;
+    }
     kfunc.continueList.add((kfunc.curBB, cloneRegTable()));
     K_Inst jmp = new K_JMP(new K_JMPop(kfunc.continuepoint[|kfunc.continuepoint|-1].bbidx, "cont"));
     kfunc.curBB.insts.add(jmp);
     kfunc.curBB.hasBrContinueBlock = true;
 }
 void Compiler.asmTRY(Stmt stmt, Stmt stmtTry, Stmt stmtCATCH, Stmt stmtFINAL) {
-    print "try";
-    print stmtTry;
-    print stmtCATCH;
-    print stmtFINAL;
+    if (DEBUG) {
+        print "try";
+        print stmtTry;
+        print stmtTry.toToken();
+        print stmtCATCH;
+    }
+    Array<K_Inst> regTableCatch = cloneRegTable();
+    Array<K_Inst> regTableFinally = cloneRegTable();
+    int espidx = stmt.getESPIDX();
+    int bbssize = kfunc.bbs.size;
+    K_BasicBlock bbCatch   = new K_BasicBlock(bbssize + 0);
+    K_BasicBlock bbFinally = new K_BasicBlock(bbssize + 1);
+    kfunc.addBB(bbCatch, bbssize);
+    kfunc.addBB(bbFinally, bbssize + 1);
+    if (this.finallyStmt != null) {
+        throw new Exception();
+    }
+    this.finallyStmt = stmtFINAL;
+    K_Inst tryinst = new K_TRY(new K_TRYop(bbCatch.bbidx, "catch"));
+    kfunc.curBB.insts.add(tryinst);
+    asmBlock(stmtTry);
+    K_Inst jmpCond = new K_JMP(new K_JMPop(bbFinally.bbidx, "finally"));
+    kfunc.curBB.insts.add(jmpCond);
+    this.finallyStmt = null;
+    kfunc.curBB = bbCatch;
+    kfunc.register_table = regTableCatch;
+    while (stmtCATCH != null) {
+        if(DEBUG) {
+            print stmtCATCH;
+            print stmtCATCH.getSTmtType();
+            print stmtCATCH.getS(0).getStmtType();
+            print stmtCATCH.getS(1).getStmtType();
+            print stmtCATCH.getS(2).getStmtType();
+            print Stmt.STT_CATCH;
+        }
+        assert(stmtCATCH.getClass() == StmtExpr);
+        if(stmtCATCH.getStmtType() == Stmt.STT_CATCH) {
+            String emsg = stmtCATCH.getT(0).getText();
+            Token tkN = stmtCATCH.getT(1);
+            assert(tkN.getTT() == Token.TT_FVAR ||
+                    tkN.getTT() == Token.TT_LVAR);
+            bbCatch = new K_BasicBlock(kfunc.bbs.size);
+            K_Inst tryinst = new K_TRY(new K_TRYop(bbCatch.bbidx, "catch"));
+            kfunc.curBB.insts.add(tryinst);
+        }
+        stmtCATCH = stmtCATCH.next();
+    }
+    //asmBlock(stmtCATCH);
+    //asm(stmtCATCH.getS(2), stmtCATCH.getS(2).toToken(), espidx);
+    //regTableCatch = kfunc.register_table;
+    //kfunc.curBB = bbFinally;
+    //kfunc.register_table = regTableFinally;
+    //asmBlock(stmtFINAL);
+    //regTableFinally = kfunc.register_table;
 }
 void Compiler.asmTHROW(Stmt stmt) {
     print "throw";
