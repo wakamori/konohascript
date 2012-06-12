@@ -395,9 +395,13 @@ String myquote(Compiler asm, dynamic value) {
             asm.opt.topLevelFunctionList.add(asm.opt.obfuscatedMethodName);
             asm.opt.mtdName = asm.opt.obfuscatedMethodName;
         } else {
-            fncdef += thisclass + "." + asm.opt.obfuscatedMethodName + " = ";
-            fncdef += "function(";
-            //fncdef += "function " + asm.opt.obfuscatedMethodName + "(";
+            if (thisclass == "Script") {
+                fncdef += "function " + asm.opt.obfuscatedMethodName + "(";
+            }
+            else {
+                fncdef += thisclass + "." + asm.opt.obfuscatedMethodName + " = ";
+                fncdef += "function(";
+            }
             asm.opt.mtdName = asm.opt.obfuscatedMethodName;
         }
     } else {
@@ -605,6 +609,10 @@ String myquote(Compiler asm, dynamic value) {
 }
 @Public @Override void K_JMP.codegen(Compiler asm) {
     asm.addSource(LABEL + space + "=" + space + op.jmpidx + ";");
+}
+@Public @Override void K_TRY.codegen(Compiler asm) {
+    asm.addSource("konoha.TRYCOND = false;");
+    asm.addSource("konoha.JMPIDX" + space + "=" + space + op.jmpidx + ";");
 }
 @Public @Override void K_COND.codegen(Compiler asm) {
     asm.addSource("if" + space + "(" + op.inst0.getVarName(asm) + ")" + space + "{");
