@@ -326,6 +326,9 @@ String myquote(Compiler asm, dynamic value) {
         res += "]";
         return "new konoha.Array(" + res + ")";
     } else if(((to String)value.class).startsWith("konoha.Map")) {
+        if (value == null) {
+            return "new konoha.Map()";
+        }
         Map m = value;
         String[] keys = m.keys();
         String res = "{";
@@ -610,10 +613,10 @@ String myquote(Compiler asm, dynamic value) {
 @Public @Override void K_JMP.codegen(Compiler asm) {
     asm.addSource(LABEL + space + "=" + space + op.jmpidx + ";");
 }
-@Public @Override void K_TRY.codegen(Compiler asm) {
-    asm.addSource("konoha.TRYCOND = false;");
-    asm.addSource("konoha.JMPIDX" + space + "=" + space + op.jmpidx + ";");
-}
+//@Public @Override void K_TRY.codegen(Compiler asm) {
+//    asm.addSource("konoha.TRYCOND = false;");
+//    asm.addSource("konoha.JMPIDX" + space + "=" + space + op.jmpidx + ";");
+//}
 @Public @Override void K_COND.codegen(Compiler asm) {
     asm.addSource("if" + space + "(" + op.inst0.getVarName(asm) + ")" + space + "{");
     asm.incIndentLevel();
