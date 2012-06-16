@@ -2361,7 +2361,7 @@ void Compiler.asmTRY(Stmt stmt, Stmt stmtTry, Stmt stmtCATCH, Stmt stmtFINAL) {
     //    throw new Exception();
     //}
     //this.finallyStmt = stmtFINAL;
-    K_Inst tryinst = new K_TRY(new K_TRYop(bbCatch.bbidx, "catch"));
+    K_Inst tryinst = new K_TRY(new K_TRYop(bbCatch.bbidx));
     kfunc.curBB.insts.add(tryinst);
     asmBlock(stmtTry);
     K_Inst jmpCond = new K_JMP(new K_JMPop(bbFinally.bbidx, "finally"));
@@ -2385,7 +2385,7 @@ void Compiler.asmTRY(Stmt stmt, Stmt stmtTry, Stmt stmtCATCH, Stmt stmtFINAL) {
             assert(tkN.getTT() == Token.TT_FVAR ||
                     tkN.getTT() == Token.TT_LVAR);
             bbCatch = new K_BasicBlock(kfunc.bbs.size);
-            K_Inst tryinst = new K_TRY(new K_TRYop(bbCatch.bbidx, "catch"));
+            K_Inst tryinst = new K_TRY(new K_TRYop(bbCatch.bbidx));
             kfunc.curBB.insts.add(tryinst);
         }
         stmtCATCH = stmtCATCH.next();
