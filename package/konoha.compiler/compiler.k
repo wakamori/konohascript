@@ -2357,16 +2357,16 @@ void Compiler.asmTRY(Stmt stmt, Stmt stmtTry, Stmt stmtCATCH, Stmt stmtFINAL) {
     K_BasicBlock bbFinally = new K_BasicBlock(bbssize + 1);
     kfunc.addBB(bbCatch, bbssize);
     kfunc.addBB(bbFinally, bbssize + 1);
-    if (this.finallyStmt != null) {
-        throw new Exception();
-    }
-    this.finallyStmt = stmtFINAL;
+    //if (this.finallyStmt != null) {
+    //    throw new Exception();
+    //}
+    //this.finallyStmt = stmtFINAL;
     K_Inst tryinst = new K_TRY(new K_TRYop(bbCatch.bbidx, "catch"));
     kfunc.curBB.insts.add(tryinst);
     asmBlock(stmtTry);
     K_Inst jmpCond = new K_JMP(new K_JMPop(bbFinally.bbidx, "finally"));
     kfunc.curBB.insts.add(jmpCond);
-    this.finallyStmt = null;
+    //this.finallyStmt = null;
     kfunc.curBB = bbCatch;
     kfunc.register_table = regTableCatch;
     while (stmtCATCH != null) {
