@@ -2,6 +2,10 @@ String indent;
 String space;
 String eol;
 RUNTIME_DIR=$konoha.package.path + "/konoha.compiler.js/runtime";
+int max_loop_count = 0;
+if($env.JS_MAX_LOOP_COUNT != null) {
+    max_loop_count=(to int)($env.JS_MAX_LOOP_COUNT);
+}
 String header = "";
 if ($env.JS_INCLUDE_RUNTIME == "true") {
     header = """
@@ -437,6 +441,9 @@ String myquote(Compiler asm, dynamic value) {
     //asm.addSource("'use strict';", 1);
     if (needSwitch) {
         asm.addSource("var " + LABEL + space + "=" + space + "0;");
+        if(max_loop_count > 0) {
+            asm.addSource("konoha.loopcount = 0;");
+        }
         asm.addSource("while" + space + "(true)" + space + "{");
         asm.incIndentLevel();
         asm.addSource("switch" + space + "(" + LABEL + ")" + space + "{");
@@ -456,10 +463,13 @@ String myquote(Compiler asm, dynamic value) {
         for (int j = 0; j < |bbs[i].movs|; j++) {
             bbs[i].movs[j].codegen(asm);
         }
-		if (|bbs[i].insts| > 0) {
-			bbs[i].insts[|bbs[i].insts|-1].codegen(asm);
-		}
+        if (|bbs[i].insts| > 0) {
+            bbs[i].insts[|bbs[i].insts|-1].codegen(asm);
+        }
         if (|bbs[i].insts| > 0 && bbs[i].insts[|bbs[i].insts|-1].class != K_RET) {
+            if(max_loop_count > 0) {
+              asm.addSource("konoha.loopcount++;");
+            }
           if ($env.JS_USE_VALUEDUMP == "true") {
             asm.addSource("safepoint({");
             asm.incIndentLevel();
@@ -483,6 +493,9 @@ String myquote(Compiler asm, dynamic value) {
     }
     if (needSwitch) {
         asm.addSource("}");
+        if(max_loop_count > 0) {
+          asm.addSource("konoha.checkLoopCount(" + max_loop_count + ");");
+        }
         asm.decIndentLevel();
         asm.addSource("}");
         asm.decIndentLevel();

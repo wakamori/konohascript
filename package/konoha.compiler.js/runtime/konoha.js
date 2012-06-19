@@ -61,6 +61,15 @@ konoha.Object.prototype.toString = function() {
 	}
 }
 
+/* Infinite Loop Detector */
+konoha.loopcount = 0;
+
+konoha.checkLoopCount = function(limit) {
+    if(konoha.loopcount >= limit) {
+        throw("Runtime!!: loop count exceeded " + limit + " times.\nYour script may have fallen into infinite loop.");
+    }
+}
+
 /* Class */
 konoha.Class = function(rawptr) {
     this.rawptr = rawptr;
@@ -235,56 +244,56 @@ konoha.Array.prototype.get = function(n) {
     if (n < this.capacity) {
         return this.rawptr[n];
     } else {
-        throw('Script!!');
+        throw('ArrayIndexOutOfBoundsException!!\nArraySize=' + this.capacity + ', index=' + n);
     }
 }
 konoha.Array.prototype.get2 = function(x, y) {
     if (x < this.capacity) {
         return this.rawptr[x].get(y);
     } else {
-        throw('Script!!');
+        throw('ArrayIndexOutOfBoundsException!!\nArraySize=' + this.capacity + ', index=' + x);
     }
 }
 konoha.Array.prototype.get3 = function(x, y, z) {
     if (x < this.capacity) {
         return this.rawptr[x].get2(y, z);
     } else {
-        throw('Script!!');
+        throw('ArrayIndexOutOfBoundsException!!\nArraySize=' + this.capacity + ', index=' + x);
     }
 }
 konoha.Array.prototype.get4 = function(x, y, z, w) {
     if (x < this.capacity) {
         return this.rawptr[x].get3(y, z, w);
     } else {
-        throw('Script!!');
+        throw('ArrayIndexOutOfBoundsException!!\nArraySize=' + this.capacity + ', index=' + x);
     }
 }
 konoha.Array.prototype.set = function(n, v) {
     if (n < this.capacity) {
         this.rawptr[n] = v;
     } else {
-        throw('Script!!');
+        throw('ArrayIndexOutOfBoundsException!!\nArraySize=' + this.capacity + ', index=' + n);
     }
 }
 konoha.Array.prototype.set2 = function(x, y, v) {
     if (x < this.capacity) {
         this.rawptr[x].set(y, v);
     } else {
-        throw ('Script!!');
+        throw('ArrayIndexOutOfBoundsException!!\nArraySize=' + this.capacity + ', index=' + x);
     }
 }
 konoha.Array.prototype.set3 = function(x, y, z, v) {
     if (x < this.capacity) {
         this.rawptr[x].set2(y, z, v);
     } else {
-        throw ('Script!!');
+        throw('ArrayIndexOutOfBoundsException!!\nArraySize=' + this.capacity + ', index=' + x);
     }
 }
 konoha.Array.prototype.set4 = function(x, y, z, w, v) {
     if (x < this.capacity) {
         this.rawptr[x].set3(y, z, w, v);
     } else {
-        throw ('Script!!');
+        throw('ArrayIndexOutOfBoundsException!!\nArraySize=' + this.capacity + ', index=' + x);
     }
 }
 konoha.Array.prototype.getSize = function() {
@@ -304,7 +313,7 @@ konoha.Array.prototype.remove = function(n) {
         this.rawptr.splice(n, 1);
         this.capacity--;
     } else {
-        throw('Script!!');
+        throw('ArrayIndexOutOfBoundsException!!\nArraySize=' + this.capacity + ', index=' + n);
     }
 }
 konoha.Array.prototype.toString = function() {

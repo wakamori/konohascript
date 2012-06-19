@@ -3,13 +3,14 @@
 PROGRAM=`basename $0`
 export JS_USE_INDENT=true
 
-while getopts ci:jo:rt:u: OPT
+while getopts ci:jl:o:rt:u: OPT
 do
     case $OPT in
         "b" ) FLG_B="TRUE" ;;
         "c" ) FLG_C="TRUE" ;;
         "i" ) FLG_I="TRUE" ; VALUE_I="$OPTARG" ;;
         "j" ) FLG_J="TRUE" ;;
+        "l" ) FLG_L="TRUE" ; VALUE_L="$OPTARG" ;;
         "o" ) FLG_O="TRUE" ; VALUE_O="$OPTARG" ;;
         "r" ) FLG_R="TRUE" ;;
         "t" ) FLG_T="TRUE" ; VALUE_T="$OPTARG" ;;
@@ -26,7 +27,7 @@ else
 fi
 
 if [ $OPT_ERROR ]; then
-    echo "Usage: $PROGRAM [-j] [-r] [-i input_file] [-o output_file] [-t gentype] [-u use_func_list]" 1>&2
+    echo "Usage: $PROGRAM [-j] [-r] [-i input_file] [-l max_loop_count] [-o output_file] [-t gentype] [-u use_func_list]" 1>&2
     exit 1
 fi
 
@@ -35,6 +36,11 @@ if [ "$FLG_J" = "TRUE" ]; then
     export JS_GEN_HTML=false
 else
     export JS_GEN_HTML=true
+fi
+
+# restrict loop count
+if [ "$FLG_L" = "TRUE" ]; then
+    export JS_MAX_LOOP_COUNT=$VALUE_L
 fi
 
 # set output file
