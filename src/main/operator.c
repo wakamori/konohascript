@@ -3582,6 +3582,7 @@ static KMETHOD System_gc(CTX ctx, ksfp_t *sfp _RIX)
 
 /* ------------------------------------------------------------------------ */
 //## method Int System.getTime();
+//## method Int System.currentTimeMillis();
 
 static KMETHOD System_getTime(CTX ctx, ksfp_t *sfp _RIX)
 {

@@ -148,6 +148,9 @@ konoha.System.getErr = function() {
     var os = new konoha.OutputStream(false);
     return os;
 }
+konoha.System.currentTimeMillis = function() {
+    return new Date().getTime();
+}
 
 /* Map */
 konoha.Map = function(rawptr) {
