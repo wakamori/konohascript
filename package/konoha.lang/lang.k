@@ -63,6 +63,7 @@ String : (Class c) {
 @Public @Native @Const Class[] Class.getFieldClasses();
 @Public @Native @Const String[] Class.getFieldNames();
 @Public @Native Class Class.getP1();
+@Public @Native String Class.toString();
 @Public @Native Class Class.getSuper();
 @Public @Native Class Class.getBaseClass();
 @Public @Native boolean Class.isPublic();

@@ -55,6 +55,11 @@ KMETHOD Class_getP1(CTX ctx, ksfp_t *sfp _RIX) {
 	kClass *c = sfp[0].c;
 	RETURN_(new_Type(ctx, c->cTBL->p1));
 }
+//## Class Class.toString();
+KMETHOD Class_toString(CTX ctx, ksfp_t *sfp _RIX) {
+	kClass *c = sfp[0].c;
+	RETURN_(c->cTBL->sname);
+}
 //## Class Class.getSuper();
 KMETHOD Class_getSuper(CTX ctx, ksfp_t *sfp _RIX) {
 	kClass *c = sfp[0].c;

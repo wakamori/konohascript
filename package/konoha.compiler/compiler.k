@@ -431,7 +431,7 @@ class K_Function {
     Class retTy;
     K_ARGUMENT[] funcargs;
     K_Inst retval;
-    Map<String, K_Value> value_table;
+    Map<String, Map<String, K_Value>> value_table;
     boolean undeveloped;
     boolean hasReturn;
     int isStatic;
@@ -618,16 +618,22 @@ class K_Function {
     }
     K_Value getKValue(int idx, Class type) {
         this.addClass(type);
-        K_Value res = value_table[(String)idx];
+        Map<String, K_Value> res = value_table[(String)idx];
         if (res == null) {
-            value_table[(String)idx] = new K_Value(idx, type);
-        } else {
-            Class rtype = res.type;
-            if (rtype != type && !checkBaseType(rtype, type)) {
-                value_table[(String)idx] = new K_Value(idx, type);
-            }
+            //value_table[(String)idx] = new K_Value(idx, type);
+			value_table[(String)idx] = {};
+			res = value_table[(String)idx];
         }
-        return value_table[(String)idx];
+		if (res[type.toString()] == null) {
+			res[type.toString()] = new K_Value(idx, type);
+		}
+		//else {
+        //    Class rtype = res.type;
+        //    if (rtype != type && !checkBaseType(rtype, type)) {
+        //        value_table[(String)idx] = new K_Value(idx, type);
+        //    }
+        //}
+        return res[type.toString()];
     }
 
     void storeKInst(int idx, K_Inst v) {
