@@ -359,6 +359,7 @@ konoha.String.prototype = new konoha.Object();
 konoha.String.prototype.get = function(num) {
     return new konoha.String(this.rawptr[num]);
 }
+konoha.String.prototype.charAt = konoha.String.prototype.get;
 konoha.String.prototype.equals = function(str) {
     return this.rawptr == str.rawptr;
 }
@@ -412,6 +413,23 @@ konoha.String.prototype.getSize = function() {
     return this.rawptr.length;
 }
 konoha.String.prototype.getLength = konoha.String.prototype.getSize;
+konoha.String.prototype.length = konoha.String.prototype.getSize;
+
+konoha.String.prototype.toLowerCase = function() {
+	return new konoha.String(this.rawptr.toLowerCase());
+}
+
+konoha.String.prototype.toUpperCase = function() {
+	return new konoha.String(this.rawptr.toUpperCase());
+}
+
+konoha.String.prototype.substring = function(from, to) {
+	return new konoha.String(this.rawptr.substring(from, to));
+}
+
+konoha.String.prototype.toCharArray = function() {
+	return new konoha.Array(this.rawptr.split(''));
+}
 
 konoha.String.prototype.konohaclass = "konoha.String";
 

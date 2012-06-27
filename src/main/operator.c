@@ -2760,6 +2760,7 @@ static KMETHOD String_getSize(CTX ctx, ksfp_t *sfp _RIX)
 
 /* ------------------------------------------------------------------------ */
 //## method @Const Int String.getLength();
+//## method @Const Int String.length();
 
 static KMETHOD String_getLength(CTX ctx, ksfp_t *sfp _RIX)
 {
@@ -2818,6 +2819,7 @@ static KMETHOD Bytes_setAll(CTX ctx, ksfp_t *sfp _RIX)
 
 /* ------------------------------------------------------------------------ */
 //## @Const method String String.get(Int n);
+//## @Const method String String.charAt(Int n);
 
 static KMETHOD String_get(CTX ctx, ksfp_t *sfp _RIX)
 {
@@ -3327,6 +3329,42 @@ static KMETHOD String_format(CTX ctx, ksfp_t *sfp _RIX)
 		KNH_NTRACE2(ctx, "konoha:format", K_FAILED, KNH_LDATA(LOG_msg("invalid format"), LOG_s("format", fmt.text)));
 	}
 	RETURN_(sfp[0].s);
+}
+
+/* ------------------------------------------------------------------------ */
+//## @Const method String String.toLowerCase(NameSpace _);
+
+static KMETHOD String_toLowerCase(CTX ctx, ksfp_t *sfp _RIX)
+{
+	CWB_t cwbbuf, *cwb = CWB_open(ctx, &cwbbuf);
+	kbytes_t t = STEXT("to:lower");
+	const knh_ConverterDPI_t *dpi = knh_NameSpace_getConverterDPINULL(ctx, sfp[1].ns, t);
+	if (dpi != NULL) {
+		dpi->sconv(ctx, NULL, S_totext(sfp[0].s), S_size(sfp[0].s), cwb->ba);
+	}
+	RETURN_(CWB_newString(ctx, cwb, 0));
+}
+
+/* ------------------------------------------------------------------------ */
+//## @Const method String String.toUpperCase(NameSpace _);
+
+static KMETHOD String_toUpperCase(CTX ctx, ksfp_t *sfp _RIX)
+{
+	CWB_t cwbbuf, *cwb = CWB_open(ctx, &cwbbuf);
+	kbytes_t t = STEXT("to:upper");
+	const knh_ConverterDPI_t *dpi = knh_NameSpace_getConverterDPINULL(ctx, sfp[1].ns, t);
+	if (dpi != NULL) {
+		dpi->sconv(ctx, NULL, S_totext(sfp[0].s), S_size(sfp[0].s), cwb->ba);
+	}
+	RETURN_(CWB_newString(ctx, cwb, 0));
+}
+
+/* ------------------------------------------------------------------------ */
+//## method String[] String.toCharArray();
+
+static KMETHOD String_toCharArray(CTX ctx, ksfp_t *sfp _RIX)
+{
+	RETURN_(kString2CharArray(ctx, sfp[0].s, 0));
 }
 
 /* ------------------------------------------------------------------------ */

@@ -70,7 +70,7 @@ def classname(name):
     if name.startswith('int') or name.startswith('float') or name.startswith('Boolean'):
         if name.islower(): name = name[0].upper() + name[1:]
     name = name.replace('!', '').replace('?', '')
-    name = name.replace('Int[]', 'IArray')
+    name = name.replace('Int[]', 'IntARRAY')
     name = name.replace('Float[]', 'FArray')
     name = name.replace('[]', 'ARRAY').replace('..', 'ITR')
     return name
