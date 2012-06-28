@@ -44,7 +44,7 @@ konoha.Object.prototype.getClass = function() {
     return new Class(this.konohaclass);
 }
 konoha.Object.prototype.toString = function() {
-	if (this.rawptr) {
+	if (typeof(this.rawptr) == "string") {
 		return this.rawptr;
 	} else {
 		var res = "{";
