@@ -3,7 +3,7 @@
 PROGRAM=`basename $0`
 export JS_USE_INDENT=true
 
-while getopts ci:jl:o:rt:u: OPT
+while getopts bci:jl:o:rt:u:v OPT
 do
     case $OPT in
         "b" ) FLG_B="TRUE" ;;
@@ -15,6 +15,7 @@ do
         "r" ) FLG_R="TRUE" ;;
         "t" ) FLG_T="TRUE" ; VALUE_T="$OPTARG" ;;
         "u" ) FLG_U="TRUE" ; VALUE_U="$OPTARG" ;;
+        "v" ) FLG_V="TRUE" ;;
           * ) OPT_ERROR=1; break;;
     esac
 done
@@ -27,7 +28,7 @@ else
 fi
 
 if [ $OPT_ERROR ]; then
-    echo "Usage: $PROGRAM [-j] [-r] [-i input_file] [-l max_loop_count] [-o output_file] [-t gentype] [-u use_func_list]" 1>&2
+    echo "Usage: $PROGRAM [-bcjrv] [-i input_file] [-l max_loop_count] [-o output_file] [-t gentype] [-u use_func_list]" 1>&2
     exit 1
 fi
 
@@ -81,6 +82,11 @@ fi
 # set unobfuscate functions
 if [ "$FLG_U" = "TRUE" ]; then
     export JS_USE_FUNC_LIST="$VALUE_U"
+fi
+
+# set memory view mode
+if [ "$FLG_V" = "TRUE" ]; then
+    export JS_MEMORY_VIEW=true
 fi
 
 if [ "$FLG_I" = "TRUE" ]; then

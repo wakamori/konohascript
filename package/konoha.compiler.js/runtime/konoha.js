@@ -1,8 +1,8 @@
 function konoha() {
     this.OUT = "";
     this.ERR = "";
-	this.THROWN = false;
-	this.THROWNMSG = "";
+    this.THROWN = false;
+    this.THROWNMSG = "";
     this.printOUT = function() {
         if (this.OUT == "") return;
         var code = document.createElement('pre');
@@ -44,21 +44,21 @@ konoha.Object.prototype.getClass = function() {
     return new Class(this.konohaclass);
 }
 konoha.Object.prototype.toString = function() {
-	if (typeof(this.rawptr) == "string") {
-		return this.rawptr;
-	} else {
-		var res = "{";
-		for (var i in this) {
-			if (typeof(this[i]) != "function" && i != "rawptr" && i != "konohaclass") {
-			console.log(i);
-			console.log(typeof(this[i]));
-			console.log(this[i]);
-			res += this[i] + " ";
-			}
-		}
-		res += "}";
-		return res;
-	}
+    if (typeof(this.rawptr) == "string") {
+        return this.rawptr;
+    } else {
+        var res = "{";
+        for (var i in this) {
+            if (typeof(this[i]) != "function" && i != "rawptr" && i != "konohaclass") {
+                console.log(i);
+                console.log(typeof(this[i]));
+                console.log(this[i]);
+                res += this[i] + " ";
+            }
+        }
+        res += "}";
+        return res;
+    }
 }
 
 /* Infinite Loop Detector */
@@ -67,6 +67,114 @@ konoha.loopcount = 0;
 konoha.checkLoopCount = function(limit) {
     if(konoha.loopcount >= limit) {
         throw("Runtime!!: loop count exceeded " + limit + " times.\nYour script may have fallen into infinite loop.");
+    }
+}
+
+/* Memory View (Experimental) */
+konoha.memview = new function() {
+    var objs = [];
+    var allobj = [];
+    this.maxh = 0;
+    this.maxw = 0;
+    this.idx = 0;
+    this.id;
+    this.update = function() {
+        var curobjs = [];
+        for (var i=0; i < objs.length; i++) {
+            curobjs.push(objs[i].rawptr.concat());
+            if (objs[i].rawptr.length > this.maxh) {
+                this.maxh = objs[i].rawptr.length;
+            }
+        };
+        if (curobjs.length > this.maxw) {
+            this.maxw = curobjs.length;
+        }
+        allobj.push(curobjs.concat());
+    }
+    this.getColor = function(r, g, b) {
+        return "rgb(" + r + "," + g + "," + b + ")";
+    }
+    this.getCompColor = function(r, g, b) {
+        return "rgb(" + Math.abs(255 - r) + "," + Math.abs(255 - g) + "," + Math.abs(255 - b) + ")";
+    }
+    this.display = function() {
+        var maxw = this.maxw;
+        var maxh = this.maxh;
+        var vieww = 800;
+        var viewh = 600;
+        var c = document.getElementById("memview");
+        if (c == null) return;
+        var cnt = document.getElementById("count");
+        cnt.innerHTML = this.idx;
+        if (this.idx == allobj.length - 1) {
+            clearInterval(this.id);
+        }
+        var obj = allobj[this.idx++];
+        var ctx = c.getContext("2d");
+        ctx.clearRect(0, 0, vieww, viewh);
+        ctx.font = "bold " + ((viewh / 2) / maxh) + "px \"Courier New\"";
+        for (var i = 0; i < obj.length; i++) {
+            for (var j = 0; j < obj[i].length; j++) {
+                var num = obj[i][j];
+                var r = Math.pow(num % 16, 2);
+                var g = Math.pow(Math.floor((num / 100) % 16), 2);
+                var b = Math.pow(Math.floor((num / 10000) % 16), 2);
+                ctx.fillStyle = this.getColor(r, g, b);
+                //console.log(this.getColor(r, g, b));
+                ctx.fillRect(i * (vieww / maxw), viewh + (j - obj[i].length) * (viewh / maxh), ((vieww / 2) / maxw), ((viewh / 2) / maxh));
+                ctx.fillStyle = this.getCompColor(r, g, b);
+                //console.log(this.getCompColor(r, g, b));
+                ctx.fillText("" + obj[i][j], i * (vieww / maxw), viewh + (j - obj[i].length + 0.5) * (viewh / maxh));
+            }
+        }
+        //console.log(obj);
+    }
+    this.show = function(ival) {
+        this.id = setInterval("konoha.memview.display()", ival);
+    }
+    this.new = function(obj) {
+        //console.log("newobj:" + obj);
+        objs.push(obj);
+        this.update();
+    }
+    this.set = function() {
+        var obj = arguments[0];
+        //console.log("set:" + obj);
+        for (var i=1; i < arguments.length; i++) {
+            //console.log("arg" + i + ":" + arguments[i]);
+        }
+        this.update();
+    }
+    this.set2 = function() {
+        var obj = arguments[0];
+        //console.log("set2:" + obj);
+        for (var i=1; i < arguments.length; i++) {
+            //console.log("arg" + i + ":" + arguments[i]);
+        }
+        this.update();
+    }
+    this.set3 = function() {
+        //console.log("set3:" + obj);
+        for (var i=1; i < arguments.length; i++) {
+            //console.log("arg" + i + ":" + arguments[i]);
+        }
+        this.update();
+    }
+    this.add = function(obj, v) {
+        //console.log("add:" + obj + "," + v);
+        this.update();
+    }
+    this.clear = function(obj) {
+        //console.log("clear:" + obj);
+        this.update();
+    }
+    this.remove = function(obj, n) {
+        //console.log("remove:" + obj + "," + n);
+        this.update();
+    }
+    this.swap = function(obj, m, n) {
+        //console.log("swap:" + obj + "," + m + "," + n);
+        this.update();
     }
 }
 
@@ -229,6 +337,7 @@ konoha.Array.prototype.new_ARRAY = function() {
         }
         this.capacity = initCapacity;
     }
+    konoha.memview.new(this);
     return this;
 }
 konoha.Array.prototype.new_ARRAY2 = konoha.Array.prototype.new_ARRAY;
@@ -238,6 +347,7 @@ konoha.Array.prototype.new_LIST = function() {
     for (var i = 0; i < arguments.length; i++) {
         this.rawptr[i] = arguments[i];
     }
+    konoha.memview.new(this);
     return this;
 }
 konoha.Array.prototype.get = function(n) {
@@ -274,6 +384,7 @@ konoha.Array.prototype.set = function(n, v) {
     } else {
         throw('ArrayIndexOutOfBoundsException!!\nArraySize=' + this.capacity + ', index=' + n);
     }
+    konoha.memview.set(this, n, v);
 }
 konoha.Array.prototype.set2 = function(x, y, v) {
     if (x < this.capacity) {
@@ -281,6 +392,7 @@ konoha.Array.prototype.set2 = function(x, y, v) {
     } else {
         throw('ArrayIndexOutOfBoundsException!!\nArraySize=' + this.capacity + ', index=' + x);
     }
+    konoha.memview.set(this, x, y, v);
 }
 konoha.Array.prototype.set3 = function(x, y, z, v) {
     if (x < this.capacity) {
@@ -288,6 +400,7 @@ konoha.Array.prototype.set3 = function(x, y, z, v) {
     } else {
         throw('ArrayIndexOutOfBoundsException!!\nArraySize=' + this.capacity + ', index=' + x);
     }
+    konoha.memview.set2(this, x, y, z, v);
 }
 konoha.Array.prototype.set4 = function(x, y, z, w, v) {
     if (x < this.capacity) {
@@ -295,6 +408,7 @@ konoha.Array.prototype.set4 = function(x, y, z, w, v) {
     } else {
         throw('ArrayIndexOutOfBoundsException!!\nArraySize=' + this.capacity + ', index=' + x);
     }
+    konoha.memview.set3(this, x, y, z, w, v);
 }
 konoha.Array.prototype.getSize = function() {
     return this.capacity;
@@ -303,10 +417,12 @@ konoha.Array.prototype.getLength = konoha.Array.prototype.getSize;
 konoha.Array.prototype.add = function(v) {
     this.capacity++;
     this.rawptr.push(v);
+    konoha.memview.add(this, v);
 }
 konoha.Array.prototype.clear = function() {
     this.capacity = 0;
     this.rawptr = [];
+    konoha.memview.clear(this);
 }
 konoha.Array.prototype.remove = function(n) {
     if (n >= 0 && n < this.capacity) {
@@ -315,6 +431,7 @@ konoha.Array.prototype.remove = function(n) {
     } else {
         throw('ArrayIndexOutOfBoundsException!!\nArraySize=' + this.capacity + ', index=' + n);
     }
+    konoha.memview.remove(this, n);
 }
 konoha.Array.prototype.toString = function() {
     var res = '[';
@@ -331,6 +448,7 @@ konoha.Array.prototype.swap = function(m, n) {
     var b = this.rawptr[m];
     this.rawptr[m] = this.rawptr[n];
     this.rawptr[n] = b;
+    konoha.memview.swap(this, m, n);
 }
 
 /* Iterator */
