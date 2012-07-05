@@ -4275,11 +4275,12 @@ L_CheckScope:;
 	else {  // overriding method
 		size_t i;
 		mp = DP(mtd)->mp;
-		if((mtd)->cid != mtd_cid) { /* Overriding */
-			if(Method_isFinal(mtd)) {
-				return ErrorFinalMethod(ctx, (mtd)->cid, mn);
-			}
-		}
+		/* TODO comment out for aspen */
+		//if((mtd)->cid != mtd_cid) { /* Overriding */
+		//	if(Method_isFinal(mtd)) {
+		//		return ErrorFinalMethod(ctx, (mtd)->cid, mn);
+		//	}
+		//}
 		if(DP(stmtP)->size / 3 != mp->psize && Param_isVARGs(mp) != StmtMETHOD_isVARGs(stmtM)) {
 			return ErrorDifferentlyDefinedMethod(ctx, mtd_cid, mn);
 		}
