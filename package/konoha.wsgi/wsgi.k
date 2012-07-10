@@ -40,6 +40,12 @@
             case "Location":
                 $wsgi.location = t[1];
                 break;
+            case "Content-Length":
+                $wsgi.content_length = t[1];
+                break;
+            case "Content-Disposition":
+                $wsgi.content_disposition = t[1];
+                break;
             default:
                 ERR << "unknown header: " + t[0] << EOL;
             }

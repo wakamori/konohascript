@@ -892,7 +892,7 @@ class HttpResponse
     }
 
     String[] keys(void) {
-        String[] keys = []
+        String[] keys = [];
         foreach (Tuple<String,String> t in _h) {
             if (not (t[0] in? keys)) {
                 keys.add(t[0]);
