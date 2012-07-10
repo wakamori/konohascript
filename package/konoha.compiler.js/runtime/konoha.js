@@ -61,6 +61,14 @@ konoha.Object.prototype.toString = function() {
     }
 }
 
+konoha.Object.prototype.neq = function(obj) {
+    return this.rawptr != obj.rawptr;
+}
+
+konoha.Object.prototype.eq = function(obj) {
+    return this.rawptr == obj.rawptr;
+}
+
 /* Infinite Loop Detector */
 konoha.loopcount = 0;
 

@@ -290,6 +290,12 @@ LABEL = "label";
 @Public String Compiler.getMethodName(Method mtd) {
     String s = mtd.toString();
     if (isKonohaClass(mtd.getMethodClass()) && mtd.getMethodClass() != Script) {
+        if (mtd.getName() == "!=") {
+            return "neq";
+        }
+        if (mtd.getName() == "==") {
+            return "eq";
+        }
         return mtd.getName();
     }
     if (((to String)mtd.getMethodClass()).endsWith("Script") && mtd.getName() == "") {
