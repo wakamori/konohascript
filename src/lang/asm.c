@@ -134,6 +134,7 @@ static void _BOX(CTX ctx, ksfp_t *sfp, ksfpidx_t c, const knh_ClassTBL_t *ct);
 static void GammaBuilder_asm(CTX ctx, kopl_t *op, size_t opsize)
 {
 	kBasicBlock *bb = DP(ctx->gma)->bbNC;
+	if(bb == NULL) return;/*unreachable code*/
 	DBG_ASSERT(op->opcode != OPCODE_JMPF);
 	if(DP(bb)->size > 0) {
 		kopl_t *opP = DP(bb)->opbuf + (DP(bb)->size - 1);
