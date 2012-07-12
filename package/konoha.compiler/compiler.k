@@ -108,7 +108,8 @@ class Compiler {
         const_table = [];
         declareclass = [];
         Method mtd_in, mtd_out, mtd_err;
-        Method[] mtds = System.getMethods();
+        Class c = System;
+        Method[] mtds = c.getMethods();
         foreach (Method m in mtds) {
             if (m.getName == "getIn")
                 mtd_in = m;
@@ -144,7 +145,7 @@ class Compiler {
         this.user_type = {};
     }
 };
-@Native void Compiler.getCurrentUline();
+@Native @Static void Compiler.getCurrentUline();
 
 String getTypeName(Class type) {
     String res = (to String) type;

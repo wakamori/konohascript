@@ -2452,6 +2452,9 @@ static kTerm* CALL_typing(CTX ctx, kStmtExpr *stmt, kclass_t tcid)
 		if(Method_isRestricted(mtd)) {
 			return ERROR_MethodIsNot(ctx, mtd, "allowed");
 		}
+		if(TT_(tkO) == TT_NULL && !Method_isStatic(mtd)) {
+			return ERROR_MethodIsNot(ctx, mtd, "static");
+		}
 		if(IS_Tunbox(mtd_cid) && !IS_Tunbox(mtd->cid)) {
 			Stmt_boxAll(ctx, stmt, 1, 2, mtd->cid);
 		}
@@ -3584,6 +3587,10 @@ static kTerm* RETURN_typing(CTX ctx, kStmtExpr *stmt)
 		return Stmt_typed(ctx, stmt, rtype);
 	}
 	if(Stmt_isImplicit(stmt)) { /*size > 0 */
+		if(stmt->terms == NULL) {
+			/* top level return */
+			return ERROR_Block(ctx, "return");
+		}
 		TYPING_UntypedObject(ctx, stmt, 0);
 		if(Tn_type(stmt, 0) != TYPE_void) {
 			Stmt_setImplicit(stmt, 0);

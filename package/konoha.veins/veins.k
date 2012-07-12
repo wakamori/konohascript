@@ -1052,7 +1052,7 @@ class Session
 /* ======================================================================== */
 /* Builtin middlwares. */
 
-class SessionMiddleware extends Middleware
+@Singleton class SessionMiddleware extends Middleware
 {
     HttpResponse hookRequest(HttpRequest req) {
         if (isDebug()) {
@@ -1117,7 +1117,7 @@ class SessionMiddleware extends Middleware
     }
 }
 
-class LoggingMiddleware extends Middleware
+@Singleton class LoggingMiddleware extends Middleware
 {
     HttpResponse hookRequest(HttpRequest req) {
         Map m = {};
