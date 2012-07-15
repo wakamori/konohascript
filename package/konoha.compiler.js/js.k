@@ -1,6 +1,7 @@
 String indent;
 String space;
 String eol;
+boolean inTryBlock;
 RUNTIME_DIR=$konoha.package.path + "/konoha.compiler.js/runtime";
 int max_loop_count = 0;
 if($env.JS_MAX_LOOP_COUNT != null) {
@@ -632,12 +633,34 @@ String myquote(Compiler asm, dynamic value) {
 	}
 }
 @Public @Override void K_JMP.codegen(Compiler asm) {
+	if (inTryBlock) {
+		asm.decIndentLevel();
+		asm.addSource("} catch (error) {");
+		asm.incIndentLevel();
+		asm.addSource(LABEL + space + "=" + space + "konoha.JMPIDX;");
+		asm.addSource(declVar(asm) + getVarName(asm) + space + "= error;");
+		asm.addSource("break;");
+		asm.decIndentLevel();
+		asm.addSource("}");
+		inTryBlock = false;
+	}
 	asm.addSource(LABEL + space + "=" + space + op.jmpidx + ";");
 }
-//@Public @Override void K_TRY.codegen(Compiler asm) {
-//    asm.addSource("konoha.TRYCOND = false;");
-//    asm.addSource("konoha.JMPIDX" + space + "=" + space + op.jmpidx + ";");
-//}
+@Public @Override void K_TRY.codegen(Compiler asm) {
+	inTryBlock = true;
+	//asm.addSource("konoha.TRYCOND = false;");
+	asm.addSource("konoha.JMPIDX" + space + "=" + space + op.jmpidx + ";");
+	asm.addSource("try {");
+	asm.incIndentLevel();
+}
+@Public @Override void K_THROW.codegen(Compiler asm) {
+	//asm.addSource("konoha.TRYCOND = true;");
+	//asm.addSource("konoha.JMPIDX" + space + "=" + space + op.index + ";");
+}
+@Public @Override void K_CATCH.codegen(Compiler asm) {
+	//asm.addSource("konoha.TRYCOND = false;");
+	//asm.addSource("konoha.JMPIDX" + space + "=" + space + op.jmpidx + ";");
+}
 @Public @Override void K_COND.codegen(Compiler asm) {
 	asm.addSource("if" + space + "(" + op.inst0.getVarName(asm) + ")" + space + "{");
 	asm.incIndentLevel();

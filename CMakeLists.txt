@@ -459,7 +459,7 @@ macro(add_konoha_package PKGNAME)
 	endif (__BUILD)
 endmacro(add_konoha_package)
 
-file(GLOB dirs "${CMAKE_CURRENT_SOURCE_DIR}/package/konoha.*")
+file(GLOB dirs "${CMAKE_CURRENT_SOURCE_DIR}/package/*")
 foreach(dir ${dirs})
 	add_subdirectory(${dir})
 endforeach()

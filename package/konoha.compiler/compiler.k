@@ -97,7 +97,7 @@ class Compiler {
 	K_Inst cwb;
 	Map<String, K_Function[]> compiled_methods;
 	CompilerOpt opt;
-	//Stmt finallyStmt;
+	Stmt finallyStmt;
 
 	Map<String, Type> user_type;
 	Compiler() {
@@ -1349,8 +1349,10 @@ class K_NEXT extends K_Inst {
 
 class K_TRYop extends K_Opcode {
 	int jmpidx;
-	K_TRYop (int jmpidx) {
+	int index;
+	K_TRYop (int jmpidx, int index) {
 		this.jmpidx = jmpidx;
+		this.index = index;
 	}
 }
 
@@ -1361,15 +1363,17 @@ class K_TRY extends K_Inst {
 		this.op = op;
 	}
 	@Override String dump() {
-		String res = "\t_ = try bb" + op.jmpidx;
+		String res = "\t_ = try bb" + op.jmpidx + " idx" + op.index;
 		return res;
 	}
 }
 
 class K_CATCHop extends K_Opcode {
 	int jmpidx;
-	K_CATCHop (int jmpidx) {
+	int index;
+	K_CATCHop (int jmpidx, int index) {
 		this.jmpidx = jmpidx;
+		this.index = index;
 	}
 }
 
@@ -1380,18 +1384,27 @@ class K_CATCH extends K_Inst {
 		this.op = op;
 	}
 	@Override String dump() {
-		String res = "\t_ = catch bb" + op.jmpidx;
+		String res = "\t_ = catch bb" + op.jmpidx + " idx" + op.index;
 		return res;
 	}
 }
 
+class K_THROWop extends K_Opcode {
+	int index;
+	K_THROWop (int index) {
+		this.index = index;
+	}
+}
+
 class K_THROW extends K_Inst {
-	K_THROW() {
+	K_THROWop op;
+	K_THROW(K_THROWop op) {
 		init_kvalue(null);
+		this.op = op;
 	}
 	@Override String dump() {
-		throw new Exception();
-		return null;
+		String res = "\t_ = throw idx" + op.index;
+		return res;
 	}
 }
 
@@ -2356,6 +2369,7 @@ void Compiler.asmTRY(Stmt stmt, Stmt stmtTry, Stmt stmtCATCH, Stmt stmtFINAL) {
 		print stmtTry.toToken();
 		print stmtCATCH;
 	}
+	Token tkIT = stmt.getT(3);
 	Array<K_Inst> regTableCatch = cloneRegTable();
 	Array<K_Inst> regTableFinally = cloneRegTable();
 	int espidx = stmt.getESPIDX();
@@ -2364,16 +2378,16 @@ void Compiler.asmTRY(Stmt stmt, Stmt stmtTry, Stmt stmtCATCH, Stmt stmtFINAL) {
 	K_BasicBlock bbFinally = new K_BasicBlock(bbssize + 1);
 	kfunc.addBB(bbCatch, bbssize);
 	kfunc.addBB(bbFinally, bbssize + 1);
-	//if (this.finallyStmt != null) {
-	//    throw new Exception();
-	//}
-	//this.finallyStmt = stmtFINAL;
-	K_Inst tryinst = new K_TRY(new K_TRYop(bbCatch.bbidx));
+	if (this.finallyStmt != null) {
+	    throw new Exception();
+	}
+	this.finallyStmt = stmtFINAL;
+	K_Inst tryinst = new K_TRY(new K_TRYop(bbCatch.bbidx, tkIT.getTokenIndex()));
 	kfunc.curBB.insts.add(tryinst);
 	asmBlock(stmtTry);
 	K_Inst jmpCond = new K_JMP(new K_JMPop(bbFinally.bbidx, "finally"));
 	kfunc.curBB.insts.add(jmpCond);
-	//this.finallyStmt = null;
+	this.finallyStmt = null;
 	kfunc.curBB = bbCatch;
 	kfunc.register_table = regTableCatch;
 	while (stmtCATCH != null) {
@@ -2391,24 +2405,40 @@ void Compiler.asmTRY(Stmt stmt, Stmt stmtTry, Stmt stmtCATCH, Stmt stmtFINAL) {
 			Token tkN = stmtCATCH.getT(1);
 			assert(tkN.getTT() == Token.TT_FVAR ||
 					tkN.getTT() == Token.TT_LVAR);
-			bbCatch = new K_BasicBlock(kfunc.bbs.size);
-			K_Inst tryinst = new K_TRY(new K_TRYop(bbCatch.bbidx));
-			kfunc.curBB.insts.add(tryinst);
+			//bbCatch = new K_BasicBlock(kfunc.bbs.size);
+			K_Inst catchinst = new K_CATCH(new K_CATCHop(bbFinally.bbidx, tkN.getTokenIndex()));
+			kfunc.curBB.insts.add(catchinst);
+			asmBlock(stmtCATCH.getS(2));
+			jmpCond = new K_JMP(new K_JMPop(bbFinally.bbidx, "finally"));
+			kfunc.curBB.insts.add(jmpCond);
+			//kfunc.curBB = bbCatch;
 		}
 		stmtCATCH = stmtCATCH.next();
 	}
+	kfunc.curBB = bbFinally;
+	kfunc.register_table = regTableFinally;
+	asmBlock(stmtFINAL);
+	K_Inst throwinst = new K_THROW(new K_THROWop(tkIT.getTokenIndex() - 1));
+	kfunc.curBB.insts.add(throwinst);
 	//asmBlock(stmtCATCH);
 	//asm(stmtCATCH.getS(2), stmtCATCH.getS(2).toToken(), espidx);
 	//regTableCatch = kfunc.register_table;
 	//kfunc.curBB = bbFinally;
 	//kfunc.register_table = regTableFinally;
-	//asmBlock(stmtFINAL);
 	//regTableFinally = kfunc.register_table;
 }
 void Compiler.asmTHROW(Stmt stmt) {
-	print "throw";
-	print stmt;
-	//int espidx = stmt.getESPIDX;
+	if (DEBUG) {
+		print "throw";
+		print stmt;
+	}
+	int start = 0;
+	int espidx = stmt.getESPIDX;
+	if (this.finallyStmt.class == Stmt) {
+		start = espidx;
+	}
+	K_Inst throwinst = new K_THROW(new K_THROWop(start));
+	kfunc.curBB.insts.add(throwinst);
 	//print espidx;
 }
 void Compiler.asmRETURN(Stmt stmt, Stmt stmtRetExpr, Stmt stmtPOST) {
