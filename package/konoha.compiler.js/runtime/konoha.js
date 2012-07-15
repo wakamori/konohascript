@@ -119,6 +119,11 @@ konoha.OutputStream = function(isCwb) {
 
         }
     }
+    this.flush = function() {
+        konoha.printOUT();
+        konoha.PROMPT = konoha.OUT.split("\n").pop();
+        konoha.OUT = "";
+    }
 
     if (!isCwb) {
         this.send = function() {
@@ -167,6 +172,23 @@ konoha.System.getErr = function() {
 }
 konoha.System.currentTimeMillis = function() {
     return new Date().getTime();
+}
+konoha.System.exit = function(s) {
+    throw("exited with status " + s);
+}
+konoha.System.getIn = function() {
+    return new function() {
+        this.readLine = function() {
+            var ret;
+            if (konoha.PROMPT != null) {
+                ret = new konoha.Object(prompt(konoha.PROMPT, ''));
+            }
+            else {
+                ret = new konoha.Object(prompt('Input value', ''));
+            }
+            return ret;
+        }
+    }
 }
 
 /* Map */

@@ -2371,7 +2371,7 @@ void Compiler.asmTRY(Stmt stmt, Stmt stmtTry, Stmt stmtCATCH, Stmt stmtFINAL) {
 	}
 	Token tkIT = stmt.getT(3);
 	Array<K_Inst> regTableCatch = cloneRegTable();
-	Array<K_Inst> regTableFinally = cloneRegTable();
+	Array<K_Inst> regTableFinally = kfunc.register_table;
 	int espidx = stmt.getESPIDX();
 	int bbssize = kfunc.bbs.size;
 	K_BasicBlock bbCatch   = new K_BasicBlock(bbssize + 0);
@@ -2420,6 +2420,34 @@ void Compiler.asmTRY(Stmt stmt, Stmt stmtTry, Stmt stmtCATCH, Stmt stmtFINAL) {
 	asmBlock(stmtFINAL);
 	K_Inst throwinst = new K_THROW(new K_THROWop(tkIT.getTokenIndex() - 1));
 	kfunc.curBB.insts.add(throwinst);
+	Array<K_Inst> regTableMerge = [];
+	if (!bbCatch.hasReturn && !bbFinally.hasReturn) {
+		for (int i = 0; i < espidx; i++) {
+			if (regTableCatch[i] != regTableFinally[i] && regTableCatch[i] != null &&
+					regTableFinally[i] != null /*&& regTableFinally[i].type.isUnboxType()*/) {
+				K_PHI phi = new K_PHI(i);
+				phi.addIncoming(kfunc, i, regTableCatch[i], bbCatch.bbidx,
+						bbCatch.movs);
+				phi.addIncoming(kfunc, i, regtableFinally[i], bbFinally.bbidx,
+						bbFinally.movs);
+				bbFinally.phis[(String)i] = phi;
+				regTableMerge.add(phi);
+			} else if (regTableCatch[i] != null){
+				regTableMerge.add(regTableCatch[i]);
+			} else {
+				regTableMerge.add(regTableFinally[i]);
+			}
+		}
+		kfunc.register_table = regTableMerge;
+	} else if (!bbCatch.hasReturn) {
+		regTableMerge = regTableCatch;
+		kfunc.register_table = regTableMerge;
+	} else if (!bbFinally.hasReturn) {
+		regTableMerge = regtableFinally;
+		kfunc.register_table = regTableMerge;
+	} else {
+		kfunc.bbs[bbFinally.bbidx] = null;
+	}
 	//asmBlock(stmtCATCH);
 	//asm(stmtCATCH.getS(2), stmtCATCH.getS(2).toToken(), espidx);
 	//regTableCatch = kfunc.register_table;
