@@ -180,11 +180,11 @@ konoha.System.getIn = function() {
     return new function() {
         this.readLine = function() {
             var ret;
-            if (konoha.PROMPT != null) {
+            if (konoha.PROMPT != '') {
                 ret = new konoha.Object(prompt(konoha.PROMPT, ''));
             }
             else {
-                ret = new konoha.Object(prompt('Input value', ''));
+                ret = new konoha.Object(prompt('Input text', ''));
             }
             return ret;
         }
