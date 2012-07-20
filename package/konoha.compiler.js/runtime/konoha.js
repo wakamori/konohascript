@@ -13,6 +13,7 @@ function konoha() {
         }
         var body = document.getElementsByTagName('body').item(0);
         body.appendChild(code);
+        window.scrollTo(0, document.body.scrollHeight);
     }
     this.printERR = function() {
         if (this.ERR == "") return;
@@ -24,6 +25,7 @@ function konoha() {
         }
         var body = document.getElementsByTagName('body').item(0);
         body.appendChild(code);
+        window.scrollTo(0, document.body.scrollHeight);
     }
 }
 
